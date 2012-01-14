@@ -4,9 +4,11 @@ var height = 336;
 Crafty.scene("menu", function()
 {
 	Crafty.background("#000");
-	Crafty.sprite(1, "small1.png", {shipImg:[0,0,66,52]});
+	Crafty.sprite(1, "arts/ship1.png", {ship1Img:[0,0,19,27]});
+	Crafty.sprite(1, "arts/ship2.png", {ship2Img:[0,0,17,25]});
+	Crafty.sprite(24, "arts/ship3.png", {ship3Img:[0,0]});
 
-	Crafty.load(["small1.png"], function(){
+	Crafty.load(["arts/ship1.png", "arts/ship2.png", "arts/ship3.png"], function(){
 		Crafty.scene("main");
 	});
 	
@@ -19,61 +21,74 @@ Crafty.scene("main", function()
 	var title = Crafty.e("2D, DOM, Text");
 	title.text("Rmydskepp!");
 	
-	var player1 = Crafty.e("DOM, shipImg, Mover, LocalPlayer")
-		.attr({x:50, y:50, z:50, w:66, h:52})
-		.mover(50, 50, 50, 50);
+	var player1 = Crafty.e("DOM, ship1Img, Mover, LocalPlayer, Healthy")
+		.attr({x:50, y:50, z:50, w:19, h:27, name:"player"})
+		.mover(500, 500, 500, 500)
+		.localPlayer();
+	
+	var alien1 = Crafty.e("DOM, Mover, Healthy, Alien")
+		.attr({x: 100, y:200, z:51, w:24, h:24, name:"alien"})
+		.mover(500, 500, 500, 500);
 });
 
 Crafty.c("Mover", 
 {
+	speed: 2000,
 	vel: {x:0, y:0},
 	acc: {x:0, y:0},
 	maxv: {x:0, y:0},
 	drag: {x:0, y:0},
+	control: {x:0, y:0},
 	lastTick: 0,
 	
 	init: function()
 	{
 		this.requires("2D");
-		this.bind("EnterFrame", this.enterframe);
+	},
+	
+	mover: function(maxv, drag)
+	{
+		this.bind("EnterFrame", this.moverUpdate);
 		this.lastTick = Date.now();
+		this.maxv.x = maxv;
+		this.maxv.y = maxv;
+		this.drag.x = drag;
+		this.drag.y = drag;
+		return this;
 	},
 	
-	mover: function(maxvx, maxvy, dragx, dragy)
+	addVel: function(x,y)
 	{
-		this.maxv.x = maxvx;
-		this.maxv.y = maxvy;
-		this.drag.x = dragx;
-		this.drag.y = dragy;
+		// bounds to 1, -1, 0 if you pass in something else
+		this.control.x = (x >= 1) ? 1 : ((x <= -1) ? -1 : 0);
+		this.control.y = (y >= 1) ? 1 : ((y <= -1) ? -1 : 0);
 	},
 	
-	enterframe: function(e)
+	moverUpdate: function(e)
 	{
+		// this gives the time since the last update
+		// multiply by delta to get framerate independent movement
 		var delta = (Date.now()-this.lastTick)/1000;
-					
-		if(this.isDown(Crafty.keys.W))
-		{
-			this.vel.y -= this.speed;
-		}
-		if(this.isDown(Crafty.keys.A))
-		{
-			this.vel.x -= this.speed;
-		}
-		if(this.isDown(Crafty.keys.S))
-		{
-			this.vel.y += this.speed;
-		}
-		if(this.isDown(Crafty.keys.D))
-		{
-			this.vel.x += this.speed;
-		}
+		
+		console.log(this.name + " " + this.control.x);
 
+		// update velocity from outside sources and reset controls
+		this.vel.x += this.control.x * this.speed * delta;
+		this.vel.y += this.control.y * this.speed * delta;
+		this.control.x = 0;
+		this.control.y = 0;
+		
+
+		// add any acceleration
 		this.vel.x += this.acc.x * delta;
 		this.vel.y += this.acc.y * delta;
 		
+		// deltafy drag values
 		var dx = this.drag.x * delta;
 		var dy = this.drag.y * delta;
 		
+		// -dx v dx -- if velocity is between drag values, set it to zero
+		// otherwise make velocity go closer to 0
 		if(this.vel.x > dx)
 			this.vel.x -= dx;
 		else if(this.vel.x < -dx)
@@ -88,6 +103,7 @@ Crafty.c("Mover",
 		else
 			this.vel.y = 0;
 
+		// bound the velocity at maximum
 		if(this.vel.x > this.maxv.x)
 			this.vel.x = this.maxv.x;
 		if(this.vel.y > this.maxv.y)
@@ -97,7 +113,8 @@ Crafty.c("Mover",
 			this.vel.x = -this.maxv.x;
 		if(this.vel.y < -this.maxv.y)
 			this.vel.y = -this.maxv.y;
-				
+		
+		// update the x and y values
 		this.x += this.vel.x * delta; 
 		this.y += this.vel.y * delta;
 		
@@ -105,64 +122,75 @@ Crafty.c("Mover",
 	}
 });
 
-Crafty.c("LocalPlayer",
+Crafty.c("Healthy",
+{});
+
+Crafty.c("Shooter",
 {
-	speed: 100,
-	
 	init: function()
 	{
-		this.requires("Keyboard, Mover");
-		//.bind("KeyDown", this.keypressed)
-		//.bind("KeyUp", this.keyreleased);
-		//Crafty.viewport.x = this.x - width/2;
-		//Crafty.viewport.y = this.y - height/2;
+	
+	},
+	
+	shoot: function()
+	{
+		var bullet = Crafty.e("DOM, bulletImg, Mover");
+	}
+});
+
+
+/* Things that have custom movement */
+Crafty.c("LocalPlayer", 
+{
+	init: function()
+	{
+		this.requires("Mover, Shooter, Keyboard");
 	},
 	
 	localPlayer: function()
 	{
-		
+		this.bind("EnterFrame", this.localUpdate);
+		return this;
 	},
-	
-	keypressed: function(e)
+
+	localUpdate: function(e)
 	{
+		var x = 0;
+		var y = 0;
 		if(this.isDown(Crafty.keys.W))
 		{
-			this.vel.y -= this.speed;
+			y -= 1;
 		}
 		if(this.isDown(Crafty.keys.A))
 		{
-			this.vel.x -= this.speed;
+			x -= 1;
 		}
 		if(this.isDown(Crafty.keys.S))
 		{
-			this.vel.y += this.speed;
+			y += 1;
 		}
 		if(this.isDown(Crafty.keys.D))
 		{
-			this.vel.x += this.speed;
+			x += 1;
 		}
-	},
-	
-	keyreleased: function(e)
-	{
-		if(!this.isDown(Crafty.keys.W))
-		{
-			this.vel.y += this.speed;
-		}
-		if(!this.isDown(Crafty.keys.A))
-		{
-			this.vel.x += this.speed;
-		}
-		if(!this.isDown(Crafty.keys.S))
-		{
-			this.vel.y -= this.speed;
-		}
-		if(!this.isDown(Crafty.keys.D))
-		{
-			this.vel.x -= this.speed;
-		}
+		
+		if(x != 0 || y != 0)
+			this.addVel(x,y);
 	}
-	// moves a ship
-	// has a viewport
-	// controlled by keyboard
+});
+
+Crafty.c("NetPlayer",
+{
+// requires squishy mover
+});
+
+Crafty.c("Alien",
+{
+// requires healthy mover
+	init: function()
+	{
+		this.requires("ship3Img, SpriteAnimation")
+		.animate("ship3Ani", 0, 0, 7)
+		.animate("ship3Ani", 4, -1);
+	}
 });
