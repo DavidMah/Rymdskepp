@@ -7,7 +7,9 @@
     socket.onopen = function(evt) {
       return socket.send(JSON.stringify(data));
     };
-    socket.onmessage = function(evt) {};
+    socket.onmessage = function(evt) {
+      return handleMessage(JSON.parse(evt.data));
+    };
     return socket.onclose = function(evt) {};
   };
   window.connectToServer = connectToServer;

@@ -7,6 +7,7 @@ connectToServer = (data) ->
     socket.send(JSON.stringify(data))
 
   socket.onmessage = (evt) ->
+    handleMessage(JSON.parse(evt.data))
 
   socket.onclose = (evt) ->
 
