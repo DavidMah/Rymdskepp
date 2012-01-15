@@ -8,10 +8,9 @@ var handleMessage = function(msgs)
 
 	for(var key in msgs)
 	{	
-		if(code == "")
-			code = msg["code"];
-		
 		var msg = msgs[key];
+		if(window.code != msg.code) return;
+		
 		switch(msg.action)
 		{
 			case "update":
