@@ -1,6 +1,8 @@
 class GameStateManager
-  def initialize(game_server)
+  def initialize(game_server, rate)
     @game_server = game_server
+    @rate        = rate
+
     @everything = {}
     @players    = {}
     @bullets    = {}
@@ -16,6 +18,7 @@ class GameStateManager
   end
 
   def run_state_changes
+    set_velocity_changes(@bullets + @aliens)
   end
 
   def handle_new_player(message, socket_id)
@@ -41,6 +44,7 @@ class GameStateManager
   def handle_update(message, socket_id)
     id   = message['id']
     type = message['type']
+    return if @everything[id].nil?
     @everything[id]         = message
     @entity_table[type][id] = message
   end
@@ -62,5 +66,12 @@ class GameStateManager
     puts "removing #{id} of type #{type}"
     @everything.delete(id)
     @entity_table[type].delete(id)
+  end
+
+  def set_velocity_changes(elements)
+    elements.each do |e|
+      e['x'] = e['vel']['x'] * RATE
+      e['y'] = e['vel']['y'] * RATE
+    end
   end
 end

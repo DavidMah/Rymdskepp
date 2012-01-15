@@ -3,11 +3,12 @@ require 'web_socket'
 require 'json'
 
 MESSAGE_BOILER = {"action" => "game_server"}
+RATE = 0.1
 
 
 class GameServer
   def initialize(socket)
-    @game_state = GameStateManager.new(self)
+    @game_state = GameStateManager.new(self, RATE)
     @socket = socket
     @socket.send('{"action":"game_server", "command":"set_game_server"}')
     @outbox = []
@@ -154,6 +155,6 @@ def run_game_server
     server.run_state_changes()
     server.request_update_changes()
     server.send_messages()
-    sleep(0.1)
+    sleep(RATE)
   end
 end
