@@ -58,15 +58,16 @@ class SocketServer
     items = message['messages']
     log "sending out #{items.size} messages to clients..."
     items.each do |item|
-      outbound_id = item['id']
+      outbound_id = item['socket_id']
       outbound_socket = @sockets[outbound_id]
-      outbound_socket.send item['message']
+      outbound_socket.send(item['message'])
     end
   end
 
   def add_to_outbox(message, socket)
     @outbox << {"socket" => @sockets[socket], "message" => message}
   end
+
 
   def log(message)
       puts "\033[32mSocket Server: #{message}\033[0m"

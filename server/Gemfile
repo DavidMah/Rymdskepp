@@ -1,4 +1,5 @@
 source "http://rubygems.org"
 gem "eventmachine"
-gem "em-websockets"
+gem "em-websocket"
 gem "web-socket-ruby"
+gem "kd-tree"

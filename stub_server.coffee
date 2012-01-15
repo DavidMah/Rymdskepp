@@ -4,8 +4,8 @@ newBullet = () ->
     x:  parseInt(Math.random() * 800)
     y:  parseInt(Math.random() * 600)
     velocity:
-      x: Math.random() * 3 - 1.5
-      y: Math.random() * 3 - 1.5
+      x: Math.random() * 300 - 150
+      y: Math.random() * 300 - 150
     action: 'new'
     type: 'bullet'
   window.bulletCount += 1

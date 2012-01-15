@@ -1,3 +1,4 @@
+load "game_state_manager.rb"
 require 'web_socket'
 require 'json'
 
@@ -6,6 +7,7 @@ MESSAGE_BOILER = {"action" => "game_server"}
 
 class GameServer
   def initialize(socket)
+    @game_state = GameStateManager.new(self)
     @socket = socket
     @socket.send('{"action":"game_server", "command":"set_game_server"}')
     @outbox = []
@@ -47,7 +49,23 @@ class GameServer
     send("handle_#{action}", message, socket)
   end
 
+  def send_to_all(message, except = nil)
+    @users.each do |id, data|
+      data['outbox']['messages'] << message
+    end
+  end
+
+  def move_user_outboxes_to_outbox
+    @outbox = @outbox + @users.inject([]) {|b, u| b + u[1]['outbox']['messages']}
+    @users.each {|id, data| data['outbox']['messages'] = []}
+  end
+
+  def add_to_outbox(message)
+    @outbox << message
+  end
+
   def send_messages
+    move_user_outboxes_to_outbox
     log "sending...#{@outbox.size} messages"
     container = MESSAGE_BOILER
     container = container.merge({"command"  => "send_messages"})
@@ -58,7 +76,11 @@ class GameServer
 
   # Responses
   def handle_new_socket(message, socket_id)
-    @users[socket_id] = {}
+    @users[socket_id] = {'outbox' => {
+                                       'socket_id' => socket_id,
+                                       'messages'  => [],
+                                     }
+                        }
   end
 
   def handle_remove_socket(message, socket_id)
@@ -70,17 +92,30 @@ class GameServer
     code = message['code']
     @users[socket_id]['name'] = name
     @users[socket_id]['code'] = code
+    @game_state.handle_new_player(message, socket_id)
+  end
+
+  def run_state_changes
+    @game_state.run_state_changes()
   end
 
   # new entity comes into existence
   def handle_new(message, socket_id)
     log(message.inspect, "[034m")
+    @game_state.handle_new(message, socket_id)
   end
 
   def handle_update(message, socket_id)
     log(message.inspect, "[034m")
   end
 
+  def handle_collision(message, socket_id)
+    log(message.inspect, "[034m")
+  end
+
+  def handle_destroy(message, socket_id)
+    log(message.inspect, "[034m")
+  end
 
   def log(message, color = "[33m")
       puts "\033#{color}Game Server: #{message}\033[0m"
@@ -95,6 +130,7 @@ def run_game_server
   loop do
     server.request_messages()
     server.handle_data(socket.receive())
+    server.run_state_changes()
     server.send_messages()
     sleep(0.3)
   end
