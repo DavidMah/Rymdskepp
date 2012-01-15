@@ -77,7 +77,7 @@ Crafty.c("SendsData",
 	{
 		if(!this.sentNew && code != "")
 		{
-			sendNew();
+			this.sendNew();
 			return;
 		}
 		if((this.lastSend + this.sendDelay) > Date.now()) return;
