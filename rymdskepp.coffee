@@ -1,5 +1,6 @@
 $(document).ready(() ->
   $('#opener_play').click(beginGame)
+  window.code = $.md5(Math.random())
   rememberCookieDetails()
 )
 
@@ -16,11 +17,10 @@ writeCookieDetails = () ->
   data =
     server: $('#opener_server').val()
     name:   $('#opener_name').val()
-    code:   if $.cookie('code') != null then $.cookie('code') else $.md5(Math.random())
+    code:   window.code
   $.cookie('has_played', true)
   $.cookie('server', data['server'])
   $.cookie('name', data['name'])
-  window.code = data['code']
   $.cookie('code', data['code'])
   data
 

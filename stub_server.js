@@ -20,8 +20,8 @@
     var b, bullet, message;
     for (b = 0; b <= 10; b++) {
       bullet = window.bullets[b];
-      bullet['x'] = bullet['x'] + bullet['vel']['x'] * 1/10;
-      bullet['y'] = bullet['y'] + bullet['vel']['y'] * 1/10;
+      bullet['x'] = bullet['x'] + bullet['vel']['x'] * 0.1;
+      bullet['y'] = bullet['y'] + bullet['vel']['y'] * 0.1;
       bullet['action'] = 'update';
       while (bullet['x'] > 800 || bullet['x'] < 0 || bullet['y'] > 600 || bullet['y'] < 0) {
         bullet = newBullet();

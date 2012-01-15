@@ -13,8 +13,8 @@ newBullet = () ->
 generateChanges = () ->
   for b in [0..10]
     bullet = window.bullets[b]
-    bullet['x'] = bullet['x'] + bullet['vel']['x']
-    bullet['y'] = bullet['y'] + bullet['vel']['y']
+    bullet['x'] = bullet['x'] + bullet['vel']['x'] * 0.1
+    bullet['y'] = bullet['y'] + bullet['vel']['y'] * 0.1
     bullet['action'] = 'update'
     while bullet['x'] > 800 or bullet['x'] < 0 or bullet['y'] > 600 or bullet['y'] < 0
       bullet = newBullet()

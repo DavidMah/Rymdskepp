@@ -2,6 +2,7 @@
   var beginGame, rememberCookieDetails, writeCookieDetails;
   $(document).ready(function() {
     $('#opener_play').click(beginGame);
+    window.code = $.md5(Math.random());
     return rememberCookieDetails();
   });
   beginGame = function() {
@@ -17,12 +18,11 @@
     data = {
       server: $('#opener_server').val(),
       name: $('#opener_name').val(),
-      code: $.cookie('code') !== null ? $.cookie('code') : $.md5(Math.random())
+      code: window.code
     };
     $.cookie('has_played', true);
     $.cookie('server', data['server']);
     $.cookie('name', data['name']);
-    window.code = data['code'];
     $.cookie('code', data['code']);
     return data;
   };
