@@ -17,7 +17,7 @@
     data = {
       server: $('#opener_server').val(),
       name: $('#opener_name').val(),
-      code: $('#opener_code').val()
+      code: $.cookie('code') !== null ? $.cookie('code') : $.md5(Math.random())
     };
     $.cookie('has_played', true);
     $.cookie('server', data['server']);
@@ -28,8 +28,7 @@
   rememberCookieDetails = function() {
     if ($.cookie('has_played')) {
       $('#opener_server').val($.cookie('server'));
-      $('#opener_name').val($.cookie('name'));
-      return $('#opener_code').val($.cookie('code'));
+      return $('#opener_name').val($.cookie('name'));
     }
   };
 }).call(this);

@@ -16,7 +16,7 @@ writeCookieDetails = () ->
   data =
     server: $('#opener_server').val()
     name:   $('#opener_name').val()
-    code:   $('#opener_code').val()
+    code:   if $.cookie('code') != null then $.cookie('code') else $.md5(Math.random())
   $.cookie('has_played', true)
   $.cookie('server', data['server'])
   $.cookie('name', data['name'])
@@ -27,4 +27,3 @@ rememberCookieDetails = () ->
   if $.cookie('has_played')
     $('#opener_server').val($.cookie('server'))
     $('#opener_name').val($.cookie('name'))
-    $('#opener_code').val($.cookie('code'))
