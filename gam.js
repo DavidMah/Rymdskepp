@@ -7,6 +7,9 @@ Crafty.scene("menu", function()
 	Crafty.sprite(1, "arts/ship1.png", {ship1Img:[0,0,19,27]});
 	Crafty.sprite(24, "arts/ship2.png", {ship2Img:[0,0]});
 	Crafty.sprite(24, "arts/ship3.png", {ship3Img:[0,0]});
+	Crafty.sprite(5, "arts/redbullet.png", {redBullet:[0,0]});
+	Crafty.sprite(5, "arts/bluebullet.png", {blueBullet:[0,0]});
+	Crafty.sprite(11, "arts/greenbullet.png", {greenBullet:[0,0]}, 1);
 
 	Crafty.load(["arts/ship1.png", "arts/ship2.png", "arts/ship3.png"], function(){
 		Crafty.scene("main");
@@ -21,14 +24,16 @@ Crafty.scene("main", function()
 	var title = Crafty.e("2D, DOM, Text");
 	title.text("Rmydskepp!");
 	
-	var player1 = Crafty.e("DOM, Ship2, Mover, LocalPlayer, Healthy")
+	var player1 = Crafty.e("DOM, Ship2, Mover, LocalPlayer, Healthy, Mouse")
 		.attr({x:50, y:50, z:50, w:19, h:27, name:"player"})
 		.Mover(500, 500, 500, 500)
-		.LocalPlayer();
+		.LocalPlayer()
+		.Teammate(1);
 	
-	var alien1 = Crafty.e("DOM, Mover, Healthy, Ship3")
+	var alien1 = Crafty.e("DOM, Mover, Healthy, Ship3, Teammate")
 		.attr({x: 100, y:200, z:51, w:24, h:24, name:"alien"})
-		.Mover(500, 500, 500, 500);
+		.Mover(500, 500, 500, 500)
+		.Teammate(2);
 });
 
 Crafty.c("Mover", 
@@ -124,18 +129,74 @@ Crafty.c("Mover",
 });
 
 Crafty.c("Healthy",
-{});
+{
+	health:100,
+	armor:0,
+	
+	init: function()
+	{
+		this.requires("Collision");
+	},
+	
+	Healthy: function(hp, arm)
+	{
+		health = hp;
+		armor = arm;
+		this.collision(this.width, this.height);
+		this.onHit("Teammate Bullet", function(){});
+	}
+});
+
+Crafty.c("Teammate",
+{
+	team:0,
+	
+	init: function(){},
+	
+	Teammate: function(team)
+	{
+		this.team = team;
+		return this;
+	}
+});
+
+Crafty.c("Bullet",
+{
+	dmg: 10,
+	speed: 10,
+	dir: 0,
+	
+	init: function()
+	{
+		this.requires("Mover");
+	},
+	
+	Bullet: function(dm, s, dr)
+	{
+		dmg = dm;
+		speed = s;
+		dir = dr;
+		this.Mover(s, 0);
+		
+		this.vel.x = Math.cos(dir) * this.speed;
+		this.vel.y = Math.sin(dir) * this.speed;
+		return this;
+	}
+});
 
 Crafty.c("Shooter",
 {
 	init: function()
 	{
-	
+		this.requires("Teammate");
 	},
 	
-	shoot: function()
+	shoot: function(dir)
 	{
-		var bullet = Crafty.e("DOM, bulletImg, Mover");
+		var bullet = Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
+			.attr({x:this.x, y:this.y})
+			.Teammate(this.team)
+			.Bullet(10, 1000, 10);
 	}
 });
 
@@ -145,12 +206,13 @@ Crafty.c("LocalPlayer",
 {
 	init: function()
 	{
-		this.requires("Mover, Shooter, Keyboard");
+		this.requires("Mover, Shooter, Keyboard, Mouse");
 	},
 	
 	LocalPlayer: function()
 	{
 		this.bind("EnterFrame", this.localUpdate);
+		this.bind("Click", this.localClick);
 		return this;
 	},
 
@@ -177,6 +239,12 @@ Crafty.c("LocalPlayer",
 		
 		if(x != 0 || y != 0)
 			this.addVel(x,y);
+	},
+	
+	localClick: function(e)
+	{
+		var dir = Math.atan2(this.y - e.y, this.x - e.x);
+		this.shoot(dir);
 	}
 });
 
@@ -205,5 +273,15 @@ Crafty.c("Ship3",
 		this.requires("ship3Img, SpriteAnimation")
 		.animate("ship3Ani", 0, 0, 7)
 		.animate("ship3Ani", 4, -1);
+	}
+});
+
+Crafty.c("GreenBullet",
+{
+	int: function()
+	{
+		this.requires("greenBullet, SpriteAnimation")
+		.animate("greenBulletAni", [[0,0],[1,0],[2,0],[3,0],[2,0],[1,0]])
+		.animate("greenBulletAni", 2, -1);
 	}
 });
