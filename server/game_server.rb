@@ -11,34 +11,31 @@ class GameServer
     @outbox = []
 
     @users = {}
+    @old_players = {}
   end
 
   def request_messages
-    puts "requesting messages..."
+    log "requesting messages..."
     @socket.send('{"action":"game_server", "command":"request_messages"}')
 
-    puts "TEST #{@users.inspect}"
+    log "Current Users:  #{@users.inspect}"
   end
 
   def handle_data(messages)
     begin
       messages = JSON.parse(messages)
-      puts "!!!#{messages}"
-      puts "handling #{messages.size} messages"
+      log "handling #{messages.size} messages"
       messages.each do |msg|
-        puts "=>#{msg}"
-        puts "==>#{msg['message']}"
-        puts "==>#{msg['message']['action']}"
         action = msg['message']['action']
         send("handle_#{action}", msg['message'], msg['socket'])
       end
     rescue => ex
-      puts "\033[31m#{ex}\n#{ex.backtrace[0..3].join("\n")}\033[0m"
+      log "\033[31m#{ex}\n#{ex.backtrace[0..3].join("\n")}\033[0m"
     end
   end
 
   def send_messages
-    puts "sending...#{@outbox.size} messages"
+    log "sending...#{@outbox.size} messages"
     container = MESSAGE_BOILER
     container = container.merge({"command"  => "send_messages"})
     container = container.merge({"messages" => @outbox})
@@ -51,21 +48,31 @@ class GameServer
     @users[socket_id] = {}
   end
 
+  def handle_remove_socket(message, socket_id)
+    @users.delete(socket_id)
+  end
+
   def handle_new_player(message, socket_id)
     name = message['name']
     code = message['code']
     @users[socket_id]['name'] = name
     @users[socket_id]['code'] = code
   end
+
+  def log(message)
+      puts "\033[33mGame Server: #{message}\033[0m"
+  end
 end
 
-socket = WebSocket.new("ws://localhost:9001")
-server = GameServer.new(socket)
+def run_game_server
+  socket = WebSocket.new("ws://localhost:9001")
+  server = GameServer.new(socket)
 
-i = 0
-loop do
-  server.request_messages()
-  server.handle_data(socket.receive())
-  server.send_messages()
-  sleep(0.3)
+  i = 0
+  loop do
+    server.request_messages()
+    server.handle_data(socket.receive())
+    server.send_messages()
+    sleep(0.3)
+  end
 end
