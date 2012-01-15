@@ -15,7 +15,7 @@ generateChanges = () ->
     bullet = window.bullets[b]
     bullet['x'] = bullet['x'] + bullet['velocity']['x']
     bullet['y'] = bullet['y'] + bullet['velocity']['y']
-    bullet['type'] = 'update'
+    bullet['action'] = 'update'
     while bullet['x'] > 800 or bullet['x'] < 0 or bullet['y'] > 600 or bullet['y'] < 0
       bullet = newBullet()
       window.bullets[b] = bullet

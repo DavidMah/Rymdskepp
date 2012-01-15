@@ -22,7 +22,7 @@
       bullet = window.bullets[b];
       bullet['x'] = bullet['x'] + bullet['velocity']['x'];
       bullet['y'] = bullet['y'] + bullet['velocity']['y'];
-      bullet['type'] = 'update';
+      bullet['action'] = 'update';
       while (bullet['x'] > 800 || bullet['x'] < 0 || bullet['y'] > 600 || bullet['y'] < 0) {
         bullet = newBullet();
         window.bullets[b] = bullet;
