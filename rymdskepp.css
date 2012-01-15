@@ -7,22 +7,40 @@ body, html {
 }
 
  /* Opener Window */
+h1 {
+  padding: 70px 0px 15px 0px;
+}
 #opener {
   margin: 0 auto 0 auto;
   width:  800px;
   height: 600px;
   background-color: #000000;
+  font-size:   20pt;
+  text-align:  center;
+  font-family: Verdana;
+  color: #FFFFFF;
+}
+
+#opener_container {
+  width: 400px;
+  height: 500px;
+  margin: 0px auto 0px auto;
+}
+
+.opener {
+  margin: 5px auto 10px auto;
 }
 
 .opener_entry {
-  font-size: 20pt;
+  font-size: 22pt;
   border: 2px solid #FFFFFF;
   border-radius: 5px;
+  text-align: center;
 }
 
 #opener_play {
+  margin-top: 30px;
   font-size:   25pt;
-  font-family: Verdana;
 
   width:  300px;
   height: 100px;
