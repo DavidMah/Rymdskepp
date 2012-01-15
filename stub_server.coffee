@@ -3,7 +3,7 @@ newBullet = () ->
     id: window.bulletCount
     x:  parseInt(Math.random() * 800)
     y:  parseInt(Math.random() * 600)
-    velocity:
+    vel:
       x: Math.random() * 300 - 150
       y: Math.random() * 300 - 150
     action: 'new'
@@ -13,8 +13,8 @@ newBullet = () ->
 generateChanges = () ->
   for b in [0..10]
     bullet = window.bullets[b]
-    bullet['x'] = bullet['x'] + bullet['velocity']['x']
-    bullet['y'] = bullet['y'] + bullet['velocity']['y']
+    bullet['x'] = bullet['x'] + bullet['vel']['x']
+    bullet['y'] = bullet['y'] + bullet['vel']['y']
     bullet['action'] = 'update'
     while bullet['x'] > 800 or bullet['x'] < 0 or bullet['y'] > 600 or bullet['y'] < 0
       bullet = newBullet()

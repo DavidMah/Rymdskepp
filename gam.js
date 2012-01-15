@@ -1,6 +1,7 @@
 var width = 800;
 var height = 600;
 var playing = false;
+var handleMessage;
 
 //Crafty.canvas.init();
 
@@ -29,52 +30,18 @@ Crafty.scene("main", function()
 	var title = Crafty.e("2D, DOM, Text");
 	title.text("Rymdskepp!");
 	
-	var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy")
+	var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy, SendsData")
 		.attr({x:150, y:150, w:24, h:24, z:50, name:"player"})
-		.Mover(500, 500, 500, 500)
-		.LocalPlayer()
-		.Teammate(1);
-		
-	var netPlayer = Crafty.e("DOM, ship1Img, Mover, NetPlayer, Healthy, Teammate")
-		.attr({x:50, y:50, z:50, w:19, h:27, name:"netplayer"})
 		.Mover(500, 500)
-		.NetPlayer()
-		.Teammate(2);
+		.LocalPlayer()
+		.Teammate(1)
+		.SendsData("player", ["x", "y", "vel"]);
 	
 	var alien1 = Crafty.e("Mover, Healthy, Ship3, Teammate")
 		.attr({x: 100, y:200, w:24, h:24, z:51, name:"alien"})
 		.Mover(500, 500)
 		.Teammate(0);
 });
-
-var netObjs = {};
-
-var handleMessage = function(msgs)
-{
-	if(!playing) return;
-	
-	for(var key in msgs)
-	{	
-		var msg = msgs[key];
-		switch(msg.action)
-		{
-			case "update":
-				var obj = netObjs[msg.id];
-				break;
-			case "new":
-				switch(msg.type)
-				{
-					case "bullet":
-						Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
-							.attr({x:msg.x, y:msg.y, w:11, h:11})
-							.Teammate(this.team)
-							.Bullet(10, msg.velocity);
-						break;
-				}
-				break;
-		}
-	}
-};
 
 Crafty.c("Healthy",
 {
@@ -179,15 +146,5 @@ Crafty.c("Shooter",
 				.Bullet(10, {x:vel.x*this.bulletSpeed, y:vel.y*this.bulletSpeed}); // bulletspeed
 			this.lastShot = Date.now();
 		}
-	}
-});
-
-Crafty.c("Networked",
-{
-	init: function(){},
-	
-	Networked: function(msg)
-	{
-		window.addToOutbox(msg);
 	}
 });

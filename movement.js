@@ -74,19 +74,6 @@ Crafty.c("LocalPlayer",
 	}
 });
 
-Crafty.c("NetPlayer",
-{
-	init: function()
-	{
-		this.requires("Mover, Shooter");
-	},
-	
-	NetPlayer: function()
-	{
-		return this;
-	}
-});
-
 Crafty.c("Mover", 
 {
 	init: function()
