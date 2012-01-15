@@ -50,13 +50,25 @@ class GameServer
   end
 
   def send_to_all(message, except = nil)
+    return message.each {|m| send_to_all(m)} if message.is_a?(Array)
     @users.each do |id, data|
       data['outbox']['messages'] << message
     end
   end
 
+  # {"messages" => [
+  #    {"socket_id" => 1,
+  #     "message" => "--------------"
+  #    }
+  # ...]}
   def move_user_outboxes_to_outbox
-    @outbox = @outbox + @users.inject([]) {|b, u| b + u[1]['outbox']['messages']}
+    @outbox = @outbox + @users.map do |id, user|
+      {
+        "socket_id" => id,
+        "messages"  => user['outbox']['messages']
+      }
+    end
+    @outbox.reject!{|m| m['messages'].empty? or m['socket_id'] == 0}
     @users.each {|id, data| data['outbox']['messages'] = []}
   end
 
@@ -65,6 +77,7 @@ class GameServer
   end
 
   def send_messages
+    log "the messages => #{@users.inspect}"
     move_user_outboxes_to_outbox
     log "sending...#{@outbox.size} messages"
     container = MESSAGE_BOILER
@@ -84,6 +97,8 @@ class GameServer
   end
 
   def handle_remove_socket(message, socket_id)
+    @game_state.remove_entity(@users[socket_id]['id'], "player")
+    log "about to destroy #{socket_id}"
     @users.delete(socket_id)
   end
 
@@ -92,11 +107,16 @@ class GameServer
     code = message['code']
     @users[socket_id]['name'] = name
     @users[socket_id]['code'] = code
-    @game_state.handle_new_player(message, socket_id)
+    player_id = @game_state.handle_new_player(message, socket_id)
+    @users[socket_id]['id'] = player_id
   end
 
   def run_state_changes
     @game_state.run_state_changes()
+  end
+
+  def request_update_changes
+    send_to_all(@game_state.retrieve_update_changes)
   end
 
   # new entity comes into existence
@@ -107,6 +127,7 @@ class GameServer
 
   def handle_update(message, socket_id)
     log(message.inspect, "[034m")
+    @game_state.handle_update(message, socket_id)
   end
 
   def handle_collision(message, socket_id)
@@ -131,6 +152,7 @@ def run_game_server
     server.request_messages()
     server.handle_data(socket.receive())
     server.run_state_changes()
+    server.request_update_changes()
     server.send_messages()
     sleep(0.3)
   end

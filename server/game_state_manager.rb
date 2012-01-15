@@ -6,28 +6,32 @@ class GameStateManager
     @bullets    = {}
     @aliens     = {}
     @asteroids  = {}
+
+    @entity_table = {
+      "player"   => @players,
+      "bullet"   => @bullets,
+      "alien"    => @aliens,
+      "asteroid" => @asteroids
+    }
   end
 
   def run_state_changes
   end
 
   def handle_new_player(message, socket_id)
-    add_new(message, @players)
+    object = add_new(message, @players)
+    @game_server.send_to_all(object)
+    object['id']
   end
 
   def handle_new(message, socket_id)
     object = message
-    case message['type']
-    when 'netplayer'
-      log "a new netplayer.. wtf #{object.inspect}"
-    when 'bullet'
-      add_new(object, @bullets)
-    when 'alien'
-      add_new(object, @aliens)
-    when 'asteroid'
-      add_new(object, @asteroids)
-    end
+    add_new(object, @entity_table[message['type']])
     @game_server.send_to_all(object)
+  end
+
+  def handle_update(message, socket_id)
+   
   end
 
   def add_new(object, list)
@@ -35,5 +39,17 @@ class GameStateManager
     object = object.merge({'id' => assigned_id})
     @everything[assigned_id] = object
     list[assigned_id]        = object
+    object
+  end
+
+  # Misc
+  def retrieve_update_changes
+    @everything.values.map{|unit| unit.merge({"action" => "update"})}
+  end
+
+  def remove_entity(id, type)
+    puts "removing #{id} of type #{type}"
+    @everything.delete(id)
+    @entity_table[type].delete(id)
   end
 end

@@ -50,17 +50,18 @@ class SocketServer
   end
 
   # {"messages" => [
-  #    {"id" => 1,
+  #    {"socket_id" => 1,
   #     "message" => "--------------"
   #    }
   # ...]}
   def handle_gs_send_messages(socket, message)
     items = message['messages']
     log "sending out #{items.size} messages to clients..."
+    log "the messages => #{items.inspect}"
     items.each do |item|
       outbound_id = item['socket_id']
       outbound_socket = @sockets[outbound_id]
-      outbound_socket.send(item['message'])
+      outbound_socket.send(item['messages'].to_json)
     end
   end
 

@@ -7,6 +7,7 @@ connectToServer = (data) ->
     addToOutbox(data)
 
   socket.onmessage = (evt) ->
+    console.log("message received #{evt.data}")
     handleMessage(JSON.parse(evt.data))
 
   socket.onclose = (evt) ->

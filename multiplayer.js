@@ -8,6 +8,7 @@
       return addToOutbox(data);
     };
     socket.onmessage = function(evt) {
+      console.log("message received " + evt.data);
       return handleMessage(JSON.parse(evt.data));
     };
     socket.onclose = function(evt) {};
