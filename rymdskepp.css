@@ -1,0 +1,45 @@
+body, html {
+  margin:  0;
+  padding: 0;
+  overflow:    hidden;
+  font-family: Arial;
+  font-size:   20px 
+}
+
+ /* Opener Window */
+#opener {
+  margin: 0 auto 0 auto;
+  width:  800px;
+  height: 600px;
+  background-color: #000000;
+}
+
+.opener_entry {
+  font-size: 20pt;
+  border: 2px solid #FFFFFF;
+  border-radius: 5px;
+}
+
+#opener_play {
+  font-size:   25pt;
+  font-family: Verdana;
+
+  width:  300px;
+  height: 100px;
+
+  border: 2px solid #5555DD;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+}
+
+#opener_play:active {
+  border: 5px solid #5555EE;
+}
+
+/* Game Stuff */
+
+#cr-stage {
+  border: 2px solid black;
+  margin: 5px auto;
+  color:  white
+}
