@@ -9,7 +9,8 @@ Crafty.c("LocalPlayer",
 	LocalPlayer: function()
 	{
 		this.bind("EnterFrame", this.localUpdate);
-		this.bind("KeyDown", this.localClick);
+		this.areaMap([0,0],[width,0],[width,height],[0,height]);
+		this.bind("Click", this.localClick);
 		return this;
 	},
 
@@ -52,15 +53,24 @@ Crafty.c("LocalPlayer",
 		{
 			right += 1;
 		}
+		/*
 		if(((up != 0) || (right != 0)) && (Date.now() - this.lastShot > this.fireRate))
 		{
 			var dir = Math.atan2(up, right);
-			this.shoot({x:up, y:right});
+			this.shoot({x:right, y:up});
 			this.lastShot = Date.now();
-		}
+		}*/
 		
 		if(x != 0 || y != 0)
 			this.addVel(x,y);
+			
+		Crafty.viewport.x = -this.x + width/2;
+		Crafty.viewport.y = -this.y + height/2;
+	},
+	
+	localClick: function(e)
+	{
+		this.shoot({x:e.x, y:e.y});
 	}
 });
 
@@ -93,7 +103,7 @@ Crafty.c("Mover",
 		this.vel = {x:0, y:0};
 		this.acc = {x:0, y:0};
 		this.control = {x:0, y:0};
-		this.speed = 2000;
+		this.speed = 1000;
 		return this;
 	},
 	
