@@ -154,6 +154,6 @@ def run_game_server
     server.run_state_changes()
     server.request_update_changes()
     server.send_messages()
-    sleep(0.3)
+    sleep(0.1)
   end
 end

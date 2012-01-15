@@ -22,7 +22,7 @@ class GameStateManager
     message = message.merge({
       'x' => 400,
       'y' => 400,
-      'v' => {
+      'vel' => {
         'x' => 1,
         'y' => 1
       }
@@ -39,7 +39,10 @@ class GameStateManager
   end
 
   def handle_update(message, socket_id)
-   
+    id   = message['id']
+    type = message['type']
+    @everything[id]         = message
+    @entity_table[type][id] = message
   end
 
   def add_new(object, list)

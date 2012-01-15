@@ -22,6 +22,7 @@
     $.cookie('has_played', true);
     $.cookie('server', data['server']);
     $.cookie('name', data['name']);
+    window.code = data['code'];
     $.cookie('code', data['code']);
     return data;
   };
