@@ -25,13 +25,26 @@ class GameServer
     begin
       messages = JSON.parse(messages)
       log "handling #{messages.size} messages"
-      messages.each do |msg|
-        action = msg['message']['action']
-        send("handle_#{action}", msg['message'], msg['socket'])
+      log "#{messages.inspect}"
+      messages.each do |msg| # socket, message basket
+        socket = msg['socket']
+        if msg['message'].is_a?(Array)
+          msg['message'].each do |m| # message in basket
+            handle_message(m, socket)
+          end
+        else
+          handle_message(msg['message'], socket)
+        end
       end
     rescue => ex
       log "\033[31m#{ex}\n#{ex.backtrace[0..3].join("\n")}\033[0m"
     end
+  end
+
+  def handle_message(message, socket)
+    log "mess #{message.inspect}"
+    action = message['action']
+    send("handle_#{action}", message, socket)
   end
 
   def send_messages
@@ -59,8 +72,18 @@ class GameServer
     @users[socket_id]['code'] = code
   end
 
-  def log(message)
-      puts "\033[33mGame Server: #{message}\033[0m"
+  # new entity comes into existence
+  def handle_new(message, socket_id)
+    log(message.inspect, "[034m")
+  end
+
+  def handle_update(message, socket_id)
+    log(message.inspect, "[034m")
+  end
+
+
+  def log(message, color = "[33m")
+      puts "\033#{color}Game Server: #{message}\033[0m"
   end
 end
 

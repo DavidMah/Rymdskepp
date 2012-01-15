@@ -27,12 +27,13 @@ class SocketServer
   def handle(message, socket)
     begin
       message = JSON.parse(message)
-      if message['action'] == 'game_server'
+      if message.is_a?(Hash) and message['action'] == 'game_server'
         send("handle_gs_#{message['command']}", socket, message)
-      elsif 
+      elsif message != []
         add_to_outbox(message, socket)
       end
     rescue => ex
+      log "\033[31mFrom message => #{message.inspect}\033"
       log "\033[31m#{ex}\n#{ex.backtrace[0..3].join("\n")}\033[0m"
     end
   end
