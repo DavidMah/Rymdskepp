@@ -25,20 +25,20 @@ Crafty.scene("main", function()
 	title.text("Rmydskepp!");
 	
 	var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy")
-		.attr({x:150, y:150, z:50, w:24, h:24, name:"player"})
+		.attr({x:150, y:150, w:24, h:24, z:50, name:"player"})
 		.Mover(500, 500, 500, 500)
 		.LocalPlayer()
 		.Teammate(1);
 		
 	var netPlayer = Crafty.e("DOM, ship1Img, Mover, NetPlayer, Healthy, Teammate")
 		.attr({x:50, y:50, z:50, w:19, h:27, name:"netplayer"})
-		.Mover(500, 500, 500, 500)
+		.Mover(500, 500)
 		.NetPlayer()
 		.Teammate(2);
 	
 	var alien1 = Crafty.e("Mover, Healthy, Ship3, Teammate")
-		.attr({x: 100, y:200, z:51, w:24, h:24, name:"alien"})
-		.Mover(500, 500, 500, 500)
+		.attr({x: 100, y:200, w:24, h:24, z:51, name:"alien"})
+		.Mover(500, 500)
 		.Teammate(0);
 });
 
@@ -46,14 +46,27 @@ var netObjs = {};
 
 var handleMessage = function(msg)
 {
-	var obj = netObjs[msg.id];
+	switch(msg.action)
+	{
+		case "update":
+			var obj = netObjs[msg.id];
+			break;
+		case "new":
+			switch(msg.type)
+			{
+				case "bullet":
+					Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
+						.attr({x:msg.x, y:msg.y, w:11, h:11})
+						.Teammate(this.team)
+						.Bullet(10, 1000, dir);
+					break;
+			}
+			break;
+	}
 };
 
 Crafty.c("Healthy",
 {
-	health:100,
-	armor:0,
-	
 	init: function()
 	{
 		this.requires("Collision");
@@ -63,15 +76,13 @@ Crafty.c("Healthy",
 	{
 		health = hp;
 		armor = arm;
-		this.collision(this.width, this.height);
-		this.onHit("Teammate Bullet", function(){});
+		//this.collision(this.width, this.height);
+		//this.onHit("Teammate Bullet", function(){});
 	}
 });
 
 Crafty.c("Teammate",
 {
-	team:0,
-	
 	init: function(){},
 	
 	Teammate: function(team)
@@ -81,22 +92,28 @@ Crafty.c("Teammate",
 	}
 });
 
+Crafty.c("Ownable",
+{
+	init: function(){},
+	
+	Ownable: function(owner)
+	{
+		this.owner = owner;
+	}
+});
+
 Crafty.c("Bullet",
 {
-	dmg: 10,
-	speed: 10,
-	dir: 0,
-	
 	init: function()
 	{
 		this.requires("Mover");
 	},
 	
-	Bullet: function(dm, s, dr)
+	Bullet: function(dm, s, dir)
 	{
-		dmg = dm;
-		speed = s;
-		dir = dr;
+		this.dmg = dm;
+		this.speed = s;
+		this.delay(function(){this.destroy()}, 100);
 		this.Mover(s, 0);
 		
 		this.vel.x = Math.cos(dir) * this.speed;
@@ -110,13 +127,15 @@ Crafty.c("Shooter",
 	init: function()
 	{
 		this.requires("Teammate");
+		this.fireRate = 10;
+		this.lastShot = Date.now();
 	},
 	
 	shoot: function(dir)
 	{
 		var bullet = Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
-			.attr({x:this.x, y:this.y})
+			.attr({x:this.x, y:this.y, w:11, h:11})
 			.Teammate(this.team)
-			.Bullet(10, 1000, 10);
+			.Bullet(10, 1000, dir);
 	}
 });

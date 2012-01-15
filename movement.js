@@ -34,16 +34,33 @@ Crafty.c("LocalPlayer",
 			x += 1;
 		}
 		
+		var up = 0;
+		var right = 0;
+		if(this.isDown(Crafty.keys.UP_ARROW))
+		{
+			up -= 1;
+		}
+		if(this.isDown(Crafty.keys.LEFT_ARROW))
+		{
+			right -= 1;
+		}
+		if(this.isDown(Crafty.keys.DOWN_ARROW))
+		{
+			up += 1;
+		}
+		if(this.isDown(Crafty.keys.RIGHT_ARROW))
+		{
+			right += 1;
+		}
+		if(((up != 0) || (right != 0)) && (Date.now() - this.lastShot > this.fireRate))
+		{
+			var dir = Math.atan2(up, right);
+			this.shoot(dir);
+			this.lastShot = Date.now();
+		}
+		
 		if(x != 0 || y != 0)
 			this.addVel(x,y);
-	},
-	
-	localClick: function(e)
-	{
-		var right = e.keyCode === Crafty.keys.RIGHT_ARROW - e.keyCode === Crafty.keys.LEFT_ARROW;
-		var up = e.keyCode === Crafty.keys.UP_ARROW - e.keyCode === Crafty.keys.DOWN_ARROW;
-		var dir = Math.atan2(up, right);
-		this.shoot(dir);
 	}
 });
 
@@ -62,14 +79,6 @@ Crafty.c("NetPlayer",
 
 Crafty.c("Mover", 
 {
-	speed: 2000,
-	vel: {x:0, y:0},
-	acc: {x:0, y:0},
-	maxv: {x:0, y:0},
-	drag: {x:0, y:0},
-	control: {x:0, y:0},
-	lastTick: 0,
-	
 	init: function()
 	{
 		this.requires("2D");
@@ -79,10 +88,8 @@ Crafty.c("Mover",
 	{
 		this.bind("EnterFrame", this.moverUpdate);
 		this.lastTick = Date.now();
-		this.maxv.x = maxv;
-		this.maxv.y = maxv;
-		this.drag.x = drag;
-		this.drag.y = drag;
+		this.maxv = {x:maxv, y:maxv};
+		this.drag = {x:drag, y:drag};
 		this.vel = {x:0, y:0};
 		this.acc = {x:0, y:0};
 		this.control = {x:0, y:0};
