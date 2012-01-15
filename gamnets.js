@@ -1,11 +1,16 @@
+var code = "";
+
 var netObjs = {};
 
 var handleMessage = function(msgs)
 {
 	if(!playing) return;
-	
+
 	for(var key in msgs)
 	{	
+		if(code == "")
+			code = msg["code"];
+		
 		var msg = msgs[key];
 		switch(msg.action)
 		{
@@ -50,35 +55,63 @@ var buildNewEntity = function(msg)
 // use this to send data every sendDelay
 Crafty.c("SendsData",
 {
-	tempId: -1,
+	tempId: 1,
 
 	init: function(){},
 	
-	SendsData: function(sends, type, listofthings)
+	SendsData: function(type, listofthings)
 	{
-		this.id = this.tempId--;
+		this.id = this.tempId++;
 		this.type = type;
 		this.sendDelay = 100;
 		this.lastSend = Date.now();
 		this.sendProperties = listofthings;
 		this.bind("EnterFrame", this.netUpdate);
-		netObjs[this.id] = this;
+		
+		this.sentNew = false;
+
 		return this;
 	},
 	
 	netUpdate: function()
 	{
-		if(this.lastSend + this.sendDelay < Date.now()) return;
+		if(!this.sentNew && code != "")
+		{
+			sendNew();
+			return;
+		}
+		if((this.lastSend + this.sendDelay) > Date.now()) return;
 		
 		var msg = {};
 		msg["id"] = this.id;
+		msg["action"] = "update";
 		msg["type"] = this.type;
 		for(var key in this.sendProperties)
 		{
-			msg[key] = this[key];
+			msg[this.sendProperties[key]] = this[this.sendProperties[key]];
 		}
 		
+		//console.log(msg);
 		window.addToOutbox(msg);
+	},
+	
+	sendNew: function()
+	{	
+		//send new message
+		var msg = {};
+		this.id = code + "_" + this.id;
+		msg["id"] = this.id;
+		msg["action"] = "new";
+		msg["type"] = this.type;
+		for(var key in this.sendProperties)
+		{
+			msg[this.sendProperties[key]] = this[this.sendProperties[key]];
+		}
+		
+		//console.log(msg);
+		window.addToOutbox(msg);
+		
+		this.sentNew = true;
 	}
 });
 
