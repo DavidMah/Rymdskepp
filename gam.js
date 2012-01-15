@@ -1,6 +1,8 @@
 var width = 800;
 var height = 600;
 
+//Crafty.canvas.init();
+
 Crafty.scene("menu", function()
 {
 	Crafty.background("#000");
@@ -10,6 +12,7 @@ Crafty.scene("menu", function()
 	Crafty.sprite(5, "arts/redbullet.png", {redBullet:[0,0]});
 	Crafty.sprite(5, "arts/bluebullet.png", {blueBullet:[0,0]});
 	Crafty.sprite(11, "arts/greenbullet.png", {greenBullet:[0,0]}, 1);
+	Crafty.sprite(12, "arts/assplode.png", {assplode:[0,0]});
 
 	Crafty.load(["arts/ship1.png", "arts/ship2.png", "arts/ship3.png"], function(){
 		Crafty.scene("main");
@@ -22,7 +25,7 @@ Crafty.scene("menu", function()
 Crafty.scene("main", function()
 {
 	var title = Crafty.e("2D, DOM, Text");
-	title.text("Rmydskepp!");
+	title.text("Rymdskepp!");
 	
 	var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy")
 		.attr({x:150, y:150, w:24, h:24, z:50, name:"player"})
@@ -44,24 +47,28 @@ Crafty.scene("main", function()
 
 var netObjs = {};
 
-var handleMessage = function(msg)
+var handleMessage = function(msgs)
 {
-	switch(msg.action)
-	{
-		case "update":
-			var obj = netObjs[msg.id];
-			break;
-		case "new":
-			switch(msg.type)
-			{
-				case "bullet":
-					Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
-						.attr({x:msg.x, y:msg.y, w:11, h:11})
-						.Teammate(this.team)
-						.Bullet(10, 1000, dir);
-					break;
-			}
-			break;
+	for(var key in msgs)
+	{	
+		var msg = msgs[key];
+		switch(msg.action)
+		{
+			case "update":
+				var obj = netObjs[msg.id];
+				break;
+			case "new":
+				switch(msg.type)
+				{
+					case "bullet":
+						Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
+							.attr({x:msg.x, y:msg.y, w:11, h:11})
+							.Teammate(this.team)
+							.Bullet(10, msg.velocity);
+						break;
+				}
+				break;
+		}
 	}
 };
 
@@ -102,6 +109,17 @@ Crafty.c("Ownable",
 	}
 });
 
+Crafty.c("Effect",
+{
+	init: function()
+	{
+		this.bind("AnimationEnd", function()
+		{
+			this.destroy();
+		});
+	},
+});
+
 Crafty.c("Bullet",
 {
 	init: function()
@@ -109,15 +127,19 @@ Crafty.c("Bullet",
 		this.requires("Mover");
 	},
 	
-	Bullet: function(dm, s, dir)
+	Bullet: function(dmg, vel)
 	{
-		this.dmg = dm;
-		this.speed = s;
-		this.delay(function(){this.destroy()}, 100);
-		this.Mover(s, 0);
+		this.dmg = dmg;
+		this.delay(function()
+		{
+			Crafty.e("2D, Assplode, Effect")
+				.attr({x:this.x, y:this.y});
+			this.destroy();
+		}, 1000);
+		this.Mover(10000, 0);
 		
-		this.vel.x = Math.cos(dir) * this.speed;
-		this.vel.y = Math.sin(dir) * this.speed;
+		this.vel.x = vel.x;
+		this.vel.y = vel.y;
 		return this;
 	}
 });
@@ -131,11 +153,11 @@ Crafty.c("Shooter",
 		this.lastShot = Date.now();
 	},
 	
-	shoot: function(dir)
+	shoot: function(vel)
 	{
 		var bullet = Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
 			.attr({x:this.x, y:this.y, w:11, h:11})
 			.Teammate(this.team)
-			.Bullet(10, 1000, dir);
+			.Bullet(10, vel);
 	}
 });

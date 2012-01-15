@@ -26,7 +26,18 @@ Crafty.c("GreenBullet",
 	{
 		this.requires("DOM, greenBullet, SpriteAnimation")
 		.animate("greenBulletAni", [[0,0],[1,0],[2,0],[3,0],[2,0],[1,0]])
-		.animate("greenBulletAni", 2, -1)
+		.animate("greenBulletAni", 100, -1)
 		.attr({w:11,h:11});
+	}
+});
+
+Crafty.c("Assplode",
+{
+	init: function()
+	{
+		this.requires("DOM, assplode, SpriteAnimation")
+		.animate("assplodeAni", [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]])
+		.animate("assplodeAni", 20, 1)
+		.attr({w:12,h:12});
 	}
 });

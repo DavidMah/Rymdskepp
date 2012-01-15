@@ -55,7 +55,7 @@ Crafty.c("LocalPlayer",
 		if(((up != 0) || (right != 0)) && (Date.now() - this.lastShot > this.fireRate))
 		{
 			var dir = Math.atan2(up, right);
-			this.shoot(dir);
+			this.shoot({x:up, y:right});
 			this.lastShot = Date.now();
 		}
 		
