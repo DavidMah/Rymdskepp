@@ -1,17 +1,13 @@
-player =
-  action: "new_player"
-  name:   "default"
-  code:   parseInt(Math.random() * 1000)
+connectToServer = (data) ->
+  data['action'] = 'new_player'
 
+  socket = new WebSocket("ws://#{data['server']}:9001")
 
-socket = new WebSocket('ws://127.0.0.1:9001')
+  socket.onopen = (evt) ->
+    socket.send(JSON.stringify(data))
 
-socket.onopen = (evt) ->
-  console.log("Opened Socket!")
-  socket.send(JSON.stringify(player))
+  socket.onmessage = (evt) ->
 
-socket.onmessage = (evt) ->
-  console.log("message: #{evt.data}")
+  socket.onclose = (evt) ->
 
-socket.onclose = (evt) ->
-  console.log("close")
+window.connectToServer = connectToServer
