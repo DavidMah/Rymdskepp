@@ -9,11 +9,12 @@ var handleMessage = function(msgs)
 	for(var key in msgs)
 	{	
 		var msg = msgs[key];
-		if(window.code != msg.code) return;
 		
 		switch(msg.action)
 		{
 			case "update":
+				if(window.code == msg.code) return;
+			
 				// grab the object from the list
 				var obj = netObjs[msg.id];
 				if(obj == null)
@@ -25,6 +26,17 @@ var handleMessage = function(msgs)
 				break;
 			case "new":
 				buildNewEntity(msg);
+				break;
+			case "new_player":
+			if(window.code != msg.code) return;
+								
+				var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy, SendsData")
+					.attr({x:150, y:150, w:24, h:24, z:50, name:"player"})
+					.Mover(500, 500)
+					.LocalPlayer()
+					.Teammate(1)
+					.SendsData("player", ["x", "y", "vel"], msg.id);
+				
 				break;
 		}
 	}
@@ -54,13 +66,11 @@ var buildNewEntity = function(msg)
 // use this to send data every sendDelay
 Crafty.c("SendsData",
 {
-	tempId: 1,
-
 	init: function(){},
 	
-	SendsData: function(type, listofthings)
+	SendsData: function(type, listofthings, id)
 	{
-		this.id = this.tempId++;
+		this.id = id;
 		this.type = type;
 		this.sendDelay = 100;
 		this.lastSend = Date.now();
@@ -74,7 +84,7 @@ Crafty.c("SendsData",
 	
 	netUpdate: function()
 	{
-		if(!this.sentNew && code != "")
+		if(!this.sentNew)
 		{
 			this.sendNew();
 			return;
@@ -98,7 +108,6 @@ Crafty.c("SendsData",
 	{	
 		//send new message
 		var msg = {};
-		this.id = code + "_" + this.id;
 		msg["id"] = this.id;
 		msg["action"] = "new";
 		msg["type"] = this.type;

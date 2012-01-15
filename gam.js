@@ -29,14 +29,7 @@ Crafty.scene("main", function()
 {
 	var title = Crafty.e("2D, DOM, Text");
 	title.text("Rymdskepp!");
-	
-	var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy, SendsData")
-		.attr({x:150, y:150, w:24, h:24, z:50, name:"player"})
-		.Mover(500, 500)
-		.LocalPlayer()
-		.Teammate(1)
-		.SendsData("player", ["x", "y", "vel"]);
-	
+
 	var alien1 = Crafty.e("Mover, Healthy, Ship3, Teammate")
 		.attr({x: 100, y:200, w:24, h:24, z:51, name:"alien"})
 		.Mover(500, 500)
