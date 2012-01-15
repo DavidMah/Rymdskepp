@@ -3,12 +3,12 @@
   connectToServer = function(data) {
     var socket;
     data['action'] = 'new_player';
+    data['type'] = 'player';
     socket = new WebSocket("ws://" + data['server'] + ":9001");
     socket.onopen = function(evt) {
       return addToOutbox(data);
     };
     socket.onmessage = function(evt) {
-      console.log("message received " + evt.data);
       return handleMessage(JSON.parse(evt.data));
     };
     socket.onclose = function(evt) {};

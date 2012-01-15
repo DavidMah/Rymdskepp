@@ -1,5 +1,6 @@
 connectToServer = (data) ->
   data['action'] = 'new_player'
+  data['type']   = 'player'
 
   socket = new WebSocket("ws://#{data['server']}:9001")
 
@@ -7,7 +8,6 @@ connectToServer = (data) ->
     addToOutbox(data)
 
   socket.onmessage = (evt) ->
-    console.log("message received #{evt.data}")
     handleMessage(JSON.parse(evt.data))
 
   socket.onclose = (evt) ->

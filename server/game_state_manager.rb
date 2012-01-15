@@ -19,6 +19,14 @@ class GameStateManager
   end
 
   def handle_new_player(message, socket_id)
+    message = message.merge({
+      'x' => 400,
+      'y' => 400,
+      'v' => {
+        'x' => 1,
+        'y' => 1
+      }
+    })
     object = add_new(message, @players)
     @game_server.send_to_all(object)
     object['id']
