@@ -5,7 +5,7 @@ Crafty.scene("menu", function()
 {
 	Crafty.background("#000");
 	Crafty.sprite(1, "arts/ship1.png", {ship1Img:[0,0,19,27]});
-	Crafty.sprite(1, "arts/ship2.png", {ship2Img:[0,0,17,25]});
+	Crafty.sprite(24, "arts/ship2.png", {ship2Img:[0,0]});
 	Crafty.sprite(24, "arts/ship3.png", {ship3Img:[0,0]});
 
 	Crafty.load(["arts/ship1.png", "arts/ship2.png", "arts/ship3.png"], function(){
@@ -21,14 +21,14 @@ Crafty.scene("main", function()
 	var title = Crafty.e("2D, DOM, Text");
 	title.text("Rmydskepp!");
 	
-	var player1 = Crafty.e("DOM, ship1Img, Mover, LocalPlayer, Healthy")
+	var player1 = Crafty.e("DOM, Ship2, Mover, LocalPlayer, Healthy")
 		.attr({x:50, y:50, z:50, w:19, h:27, name:"player"})
-		.mover(500, 500, 500, 500)
-		.localPlayer();
+		.Mover(500, 500, 500, 500)
+		.LocalPlayer();
 	
-	var alien1 = Crafty.e("DOM, Mover, Healthy, Alien")
+	var alien1 = Crafty.e("DOM, Mover, Healthy, Ship3")
 		.attr({x: 100, y:200, z:51, w:24, h:24, name:"alien"})
-		.mover(500, 500, 500, 500);
+		.Mover(500, 500, 500, 500);
 });
 
 Crafty.c("Mover", 
@@ -43,10 +43,10 @@ Crafty.c("Mover",
 	
 	init: function()
 	{
-		this.requires("2D");
+		this.requires("2D, Tween");
 	},
 	
-	mover: function(maxv, drag)
+	Mover: function(maxv, drag)
 	{
 		this.bind("EnterFrame", this.moverUpdate);
 		this.lastTick = Date.now();
@@ -54,6 +54,10 @@ Crafty.c("Mover",
 		this.maxv.y = maxv;
 		this.drag.x = drag;
 		this.drag.y = drag;
+		this.vel = {x:0, y:0};
+		this.acc = {x:0, y:0};
+		this.control = {x:0, y:0};
+		this.speed = 2000;
 		return this;
 	},
 	
@@ -70,15 +74,12 @@ Crafty.c("Mover",
 		// multiply by delta to get framerate independent movement
 		var delta = (Date.now()-this.lastTick)/1000;
 		
-		console.log(this.name + " " + this.control.x);
-
 		// update velocity from outside sources and reset controls
 		this.vel.x += this.control.x * this.speed * delta;
 		this.vel.y += this.control.y * this.speed * delta;
 		this.control.x = 0;
 		this.control.y = 0;
 		
-
 		// add any acceleration
 		this.vel.x += this.acc.x * delta;
 		this.vel.y += this.acc.y * delta;
@@ -147,7 +148,7 @@ Crafty.c("LocalPlayer",
 		this.requires("Mover, Shooter, Keyboard");
 	},
 	
-	localPlayer: function()
+	LocalPlayer: function()
 	{
 		this.bind("EnterFrame", this.localUpdate);
 		return this;
@@ -184,9 +185,21 @@ Crafty.c("NetPlayer",
 // requires squishy mover
 });
 
-Crafty.c("Alien",
+
+/* Animations */
+
+Crafty.c("Ship2",
 {
-// requires healthy mover
+	init: function()
+	{
+		this.requires("ship2Img, SpriteAnimation")
+		.animate("ship2Ani", [[0,0],[1,0],[2,0],[3,0],[4,0],[3,0],[2,0],[1,0]])
+		.animate("ship2Ani", 10, -1);
+	}
+});
+
+Crafty.c("Ship3",
+{
 	init: function()
 	{
 		this.requires("ship3Img, SpriteAnimation")
