@@ -84,11 +84,11 @@ Crafty.c("SendsData",
 	
 	netUpdate: function()
 	{
-		if(!this.sentNew)
+		/*if(!this.sentNew)
 		{
 			this.sendNew();
 			return;
-		}
+		}*/
 		if((this.lastSend + this.sendDelay) > Date.now()) return;
 		
 		var msg = {};
