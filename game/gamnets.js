@@ -9,11 +9,19 @@ var handleMessage = function(msgs)
 	for(var key = 0; key < msgs.length; key++)
 	{	
 		var msg = msgs[key];
-		
+		//console.log(msg.action);
+		//console.log(msg);
 		switch(msg.action)
 		{
+			case "destroy":
+				var obj = netObjs[msg.id];
+				if(obj)
+					obj.kill();
+				break;
 			case "update":
 				if(window.code === msg.code) break;
+			
+				//console.log("update " + msg.type);
 			
 				// grab the object from the list
 				var obj = netObjs[msg.id];
@@ -88,7 +96,7 @@ Crafty.c("SendsData",
 	{
 		this.id = id;
 		this.type = type;
-		this.sendDelay = 100;
+		this.sendDelay = 50;
 		this.lastSend = Date.now();
 		this.sendProperties = listofthings;
 		this.bind("EnterFrame", this.netUpdate);
@@ -101,9 +109,7 @@ Crafty.c("SendsData",
 	netUpdate: function()
 	{
 		if((this.lastSend + this.sendDelay) > Date.now()) return;
-		
-		console.log("sending message");
-		
+				
 		var msg = {};
 		msg["id"] = this.id;
 		msg["action"] = "update";

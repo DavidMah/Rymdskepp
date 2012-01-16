@@ -24,12 +24,13 @@ Crafty.c("Shooter",
 			msg = {};
 			msg.action = "new";
 			msg.type = "bullet";
+			msg.code = window.code;
 			msg.x = this.x+this.w/2-5;
 			msg.y = this.y+this.h/2-5;
 			msg.vel = {x:dir.x*this.bulletSpeed, y:dir.y*this.bulletSpeed};
 			msg.team = this.team;
 			window.addToOutbox(msg);
-			
+
 			this.lastShot = Date.now();
 		}
 	}

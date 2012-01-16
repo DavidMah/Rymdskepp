@@ -109,11 +109,13 @@ Crafty.c("Bullet",
 	{
 		Crafty.e("2D, Assplode, Effect")
 			.attr({x:this.x, y:this.y});
-		/*
+		
 		msg = {};
 		msg.id = this.id;
+		msg.action = "destroy";
+		msg.type = "bullet";
 		window.addToOutbox(msg);
-		*/
+		
 		this.destroy();
 	}
 });
