@@ -15,10 +15,13 @@ class GameStateManager
       "alien"    => @aliens,
       "asteroid" => @asteroids
     }
+
+    @current_id = 1
   end
 
   def run_state_changes
-    set_velocity_changes(@bullets + @aliens)
+    # set_velocity_changes(@bullets)
+    set_velocity_changes(@aliens)
   end
 
   def handle_new_player(message, socket_id)
@@ -31,6 +34,7 @@ class GameStateManager
       }
     })
     object = add_new(message, @players)
+    object['action'] = 'new_player'
     @game_server.send_to_all(object)
     object['id']
   end
@@ -45,15 +49,19 @@ class GameStateManager
     id   = message['id']
     type = message['type']
     return if @everything[id].nil?
-    @everything[id]         = message
-    @entity_table[type][id] = message
+    item = @everything[id]
+    item['x'] = message['x']
+    item['y'] = message['y']
+    item['vel'] = message['vel']
   end
 
   def add_new(object, list)
-    assigned_id = @everything.size
+    assigned_id = @current_id
     object = object.merge({'id' => assigned_id})
     @everything[assigned_id] = object
     list[assigned_id]        = object
+    @current_id += 1
+
     object
   end
 
@@ -69,7 +77,7 @@ class GameStateManager
   end
 
   def set_velocity_changes(elements)
-    elements.each do |e|
+    elements.values.each do |e|
       e['x'] = e['vel']['x'] * RATE
       e['y'] = e['vel']['y'] * RATE
     end
