@@ -1,10 +1,14 @@
 (function() {
-  var beginGame, rememberCookieDetails, writeCookieDetails;
+  var beginGame, joinLobby, rememberCookieDetails, writeCookieDetails;
   $(document).ready(function() {
     $('#opener_play').click(beginGame);
     window.code = $.md5(Math.random());
     return rememberCookieDetails();
   });
+  joinLobby = function() {
+    var socket;
+    return socket = new WebSocket("ws://davidpmah.com:9002");
+  };
   beginGame = function() {
     var data;
     $('#opener').hide();

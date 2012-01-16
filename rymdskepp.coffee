@@ -4,6 +4,10 @@ $(document).ready(() ->
   rememberCookieDetails()
 )
 
+joinLobby = () ->
+  socket = new WebSocket("ws://davidpmah.com:9002")
+
+
 beginGame = () ->
   $('#opener').hide()
   data = writeCookieDetails()

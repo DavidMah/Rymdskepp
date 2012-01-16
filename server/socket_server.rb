@@ -57,7 +57,7 @@ class SocketServer
   def handle_gs_send_messages(socket, message)
     items = message['messages']
     log "sending out #{items.size} messages to clients..."
-    log "the messages => #{items.inspect}"
+    # log "the messages => #{items.inspect}"
     items.each do |item|
       outbound_id = item['socket_id']
       outbound_socket = @sockets[outbound_id]
@@ -71,7 +71,7 @@ class SocketServer
 
 
   def log(message)
-      puts "\033[32mSocket Server: #{message}\033[0m"
+      puts "\033[32m<#{Time.now.to_f}> Socket Server: #{message}\033[0m"
   end
 end
 

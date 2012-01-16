@@ -36,7 +36,7 @@ class GameServer
     begin
       messages = JSON.parse(messages)
       log "handling #{messages.size} messages"
-      log "#{messages.inspect}"
+      # log "#{messages.inspect}"
       messages.each do |msg| # socket, message basket
         socket = msg['socket']
         if msg['message'].is_a?(Array)
@@ -86,7 +86,7 @@ class GameServer
   end
 
   def send_messages
-    log "the messages => #{@users.inspect}"
+    # log "the messages => #{@users.inspect}"
     move_user_outboxes_to_outbox
     log "sending...#{@outbox.size} messages"
     container = MESSAGE_BOILER
@@ -157,7 +157,7 @@ class GameServer
   end
 
   def log(message, color = "[33m")
-      puts "\033#{color}Game Server: #{message}\033[0m"
+      puts "\033#{color}<#{Time.now.to_f}> Game Server: #{message}\033[0m"
   end
 end
 
@@ -167,6 +167,8 @@ def run_game_server(name = "Rymdskepp Game")
 
   i = 0
   loop do
+    pretime = Time.now.to_f
+
     server.request_messages()
     server.handle_data(socket.receive())
     server.run_state_changes()
@@ -176,7 +178,10 @@ def run_game_server(name = "Rymdskepp Game")
       server.update_lobby()
       i = 0
     end
+    length = Time.now.to_f - pretime
     i += RATE
-    sleep(RATE)
+
+    waittime = ((RATE - length) <= 0 ? 0 : (RATE - length))
+    sleep(waittime)
   end
 end
