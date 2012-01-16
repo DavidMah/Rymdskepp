@@ -79,7 +79,7 @@ Crafty.c("SendsData",
 	{
 		this.id = id;
 		this.type = type;
-		this.sendDelay = 500;
+		this.sendDelay = 100;
 		this.lastSend = Date.now();
 		this.sendProperties = listofthings;
 		this.bind("EnterFrame", this.netUpdate);
@@ -93,6 +93,8 @@ Crafty.c("SendsData",
 	{
 		if((this.lastSend + this.sendDelay) > Date.now()) return;
 		
+		console.log("sending message");
+		
 		var msg = {};
 		msg["id"] = this.id;
 		msg["action"] = "update";
@@ -105,6 +107,7 @@ Crafty.c("SendsData",
 		
 		//console.log(msg);
 		window.addToOutbox(msg);
+		this.lastSend = Date.now();
 	}
 });
 
