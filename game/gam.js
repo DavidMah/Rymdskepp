@@ -59,6 +59,7 @@ Crafty.c("Teammate",
 	
 	Teammate: function(team)
 	{
+		if(team == null) team = 0;
 		this.team = team;
 		return this;
 	}
@@ -89,7 +90,7 @@ Crafty.c("Bullet",
 {
 	init: function()
 	{
-		this.requires("Mover, Collision, SendsData");
+		this.requires("Mover, Collision");
 	},
 	
 	Bullet: function(dmg, vel)
@@ -98,7 +99,6 @@ Crafty.c("Bullet",
 		this.delay(this.kill, 1500); //lifetime
 		this.Mover(10000, 0)
 			.collision(new Crafty.circle(0,0,this.w));
-			//.SendsData("player", ["x", "y", "vel"], msg.id);
 		
 		this.vel.x = vel.x;
 		this.vel.y = vel.y;
@@ -109,6 +109,11 @@ Crafty.c("Bullet",
 	{
 		Crafty.e("2D, Assplode, Effect")
 			.attr({x:this.x, y:this.y});
+		/*
+		msg = {};
+		msg.id = this.id;
+		window.addToOutbox(msg);
+		*/
 		this.destroy();
 	}
 });

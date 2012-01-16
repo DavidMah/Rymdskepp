@@ -22,7 +22,7 @@ Crafty.c("Shooter",
 				.SendsData("bullet", ["x", "y", "vel"]); // bulletspeed
 				*/
 			msg = {};
-			msg.action = "new_bullet";
+			msg.action = "new";
 			msg.type = "bullet";
 			msg.x = this.x+this.w/2-5;
 			msg.y = this.y+this.h/2-5;
