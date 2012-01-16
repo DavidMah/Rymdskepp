@@ -14,10 +14,22 @@ Crafty.c("Shooter",
 		{
 			var len = Math.sqrt(vel.x*vel.x+vel.y*vel.y);
 			var dir = {x:vel.x/len, y:vel.y/len};
+			/*
 			var bullet = Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
 				.attr({x:this.x+this.w/2-5, y:this.y+this.h/2-5, w:11, h:11})
 				.Teammate(this.team)
-				.Bullet(10, {x:dir.x*this.bulletSpeed, y:dir.y*this.bulletSpeed}); // bulletspeed
+				.Bullet(10, {x:dir.x*this.bulletSpeed, y:dir.y*this.bulletSpeed})
+				.SendsData("bullet", ["x", "y", "vel"]); // bulletspeed
+				*/
+			msg = {};
+			msg.action = "new_bullet";
+			msg.type = "bullet";
+			msg.x = this.x+this.w/2-5;
+			msg.y = this.y+this.h/2-5;
+			msg.vel = {x:dir.x*this.bulletSpeed, y:dir.y*this.bulletSpeed};
+			msg.team = this.team;
+			window.addToOutbox(msg);
+			
 			this.lastShot = Date.now();
 		}
 	}
@@ -81,13 +93,11 @@ Crafty.c("LocalPlayer",
 		{
 			right += 1;
 		}
-		/*
+		
 		if(((up != 0) || (right != 0)) && (Date.now() - this.lastShot > this.fireRate))
 		{
-			var dir = Math.atan2(up, right);
 			this.shoot({x:right, y:up});
-			this.lastShot = Date.now();
-		}*/
+		}
 		
 		if(x != 0 || y != 0)
 			this.addVel(x,y);
@@ -104,7 +114,6 @@ Crafty.c("LocalPlayer",
 		this.mouseIsDown = true;
 		this.mouseX = e.offsetX;
 		this.mouseY = e.offsetY;
-		console.log(e)
 	},
 	
 	localClickMove: function(e)

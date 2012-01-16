@@ -24,15 +24,25 @@ var handleMessage = function(msgs)
 				}
 				obj.trigger("NetUpdate", msg);
 				break;
+			case "new_bullet":
+				if(window.code !== msg.code) break;
+
+				var bullet = Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
+					.attr({x:msg.x, y:msg.y, w:11, h:11})
+					.Teammate(msg.team)
+					.Bullet(10, {x:msg.vel.x, y:msg.vel.y})
+					.SendsData("bullet", ["x", "y", "vel", "team"], msg.id); // bulletspeed
+					
+				break;
 			case "new_player":
 				if(window.code !== msg.code) break;
 				
 				var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy, SendsData")
-					.attr({x:150, y:150, w:24, h:24, z:50, name:"player"})
+					.attr({x:msg.x, y:msg.y, w:24, h:24, z:50, name:"player"})
 					.Mover(500, 500)
 					.LocalPlayer()
-					.Teammate(1)
-					.SendsData("player", ["x", "y", "vel"], msg.id);
+					.Teammate(msg.team)
+					.SendsData("player", ["x", "y", "vel", "team"], msg.id);
 				
 				break;
 		}
@@ -69,7 +79,7 @@ Crafty.c("SendsData",
 	{
 		this.id = id;
 		this.type = type;
-		this.sendDelay = 100;
+		this.sendDelay = 500;
 		this.lastSend = Date.now();
 		this.sendProperties = listofthings;
 		this.bind("EnterFrame", this.netUpdate);
@@ -87,6 +97,7 @@ Crafty.c("SendsData",
 		msg["id"] = this.id;
 		msg["action"] = "update";
 		msg["type"] = this.type;
+		msg["tick"] = Date.now();
 		for(var key in this.sendProperties)
 		{
 			msg[this.sendProperties[key]] = this[this.sendProperties[key]];
