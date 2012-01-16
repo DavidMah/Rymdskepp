@@ -9,7 +9,6 @@ var handleMessage = function(msgs)
 	for(var key = 0; key < msgs.length; key++)
 	{	
 		var msg = msgs[key];
-		console.log("processing: " + msg);
 		
 		switch(msg.action)
 		{
@@ -27,7 +26,7 @@ var handleMessage = function(msgs)
 				break;
 			case "new_player":
 				if(window.code !== msg.code) break;
-								
+				
 				var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy, SendsData")
 					.attr({x:150, y:150, w:24, h:24, z:50, name:"player"})
 					.Mover(500, 500)
@@ -52,7 +51,7 @@ var buildNewEntity = function(msg)
 				.RecsData(msg);
 			break;
 		case "player":
-			var netPlayer = Crafty.e("DOM, ship1Img, Mover, RecsData, Healthy, Teammate")
+			var netPlayer = Crafty.e("Ship1, Mover, RecsData, Healthy, Teammate")
 				.attr({x:msg.x, y:msg.y, z:50, w:19, h:27})
 				.Teammate(2)
 				.Mover(500, 500)

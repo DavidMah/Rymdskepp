@@ -1,3 +1,27 @@
+Crafty.c("Shooter",
+{
+	init: function()
+	{
+		this.requires("Teammate");
+		this.fireRate = 300;
+		this.bulletSpeed = 400;
+		this.lastShot = Date.now();
+	},
+	
+	shoot: function(vel)
+	{
+		if(Date.now() - this.lastShot > this.fireRate)
+		{
+			var len = Math.sqrt(vel.x*vel.x+vel.y*vel.y);
+			var dir = {x:vel.x/len, y:vel.y/len};
+			var bullet = Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
+				.attr({x:this.x, y:this.y, w:11, h:11})
+				.Teammate(this.team)
+				.Bullet(10, {x:dir.x*this.bulletSpeed+this.vel.x, y:dir.y*this.bulletSpeed+this.vel.y}); // bulletspeed
+			this.lastShot = Date.now();
+		}
+	}
+});
 
 Crafty.c("LocalPlayer", 
 {
@@ -9,8 +33,10 @@ Crafty.c("LocalPlayer",
 	LocalPlayer: function()
 	{
 		this.bind("EnterFrame", this.localUpdate);
-		this.areaMap([0,0],[width,0],[width,height],[0,height]);
-		this.bind("Click", this.localClick);
+		this.mouseIsDown = false;
+		Crafty.addEvent(this, Crafty.stage.elem, "mousedown", this.localClickDown);
+		Crafty.addEvent(this, Crafty.stage.elem, "mousemove", this.localClickMove);
+		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this.localClickUp);
 		return this;
 	},
 
@@ -66,11 +92,27 @@ Crafty.c("LocalPlayer",
 			
 		Crafty.viewport.x = -this.x + width/2;
 		Crafty.viewport.y = -this.y + height/2;
+		
+		if(this.mouseIsDown)
+			this.shoot({x:this.mouseX-this.x, y:this.mouseY-this.y});	
 	},
 	
-	localClick: function(e)
+	localClickDown: function(e)
 	{
-		this.shoot({x:e.x, y:e.y});
+		this.mouseIsDown = true;
+		this.mouseX = e.realX;
+		this.mouseY = e.realY;
+	},
+	
+	localClickMove: function(e)
+	{
+		this.mouseX = e.realX;
+		this.mouseY = e.realY;
+	},
+	
+	localClickUp: function(e)
+	{
+		this.mouseIsDown = false;
 	}
 });
 
