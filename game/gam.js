@@ -96,7 +96,12 @@ Crafty.c("Bullet",
 	Bullet: function(dmg, vel)
 	{
 		this.dmg = dmg;
-		this.delay(this.kill, 1500); //lifetime
+		this.delay(function(){
+			if(this.has("SendsData"))
+				this.netKill();
+			else
+				this.kill();
+		}, 1500); //lifetime
 		this.Mover(10000, 0)
 			.collision(new Crafty.circle(0,0,this.w));
 		
@@ -106,6 +111,14 @@ Crafty.c("Bullet",
 	},
 	
 	kill: function()
+	{
+		Crafty.e("2D, Assplode, Effect")
+			.attr({x:this.x, y:this.y});
+			
+		this.destroy();
+	},
+	
+	netKill: function()
 	{
 		Crafty.e("2D, Assplode, Effect")
 			.attr({x:this.x, y:this.y});
