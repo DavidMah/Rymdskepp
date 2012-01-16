@@ -29,7 +29,7 @@ class GameServer
     log "requesting messages..."
     @socket.send('{"action":"game_server", "command":"request_messages"}')
 
-    log "Current Users:  #{@users.inspect}"
+    # log "Current Users:  #{@users.inspect}"
   end
 
   def handle_data(messages)
@@ -53,13 +53,14 @@ class GameServer
   end
 
   def handle_message(message, socket)
-    log "mess #{message.inspect}"
+    # log "mess #{message.inspect}"
     action = message['action']
     send("handle_#{action}", message, socket)
   end
 
   def send_to_all(message, except = nil)
     return message.each {|m| send_to_all(m)} if message.is_a?(Array)
+      # log "Message Output => #{message.inspect}"
     @users.each do |id, data|
       data['outbox']['messages'] << message
     end
@@ -130,12 +131,12 @@ class GameServer
 
   # new entity comes into existence
   def handle_new(message, socket_id)
-    log(message.inspect, "[034m")
+    log("saw new thing => #{message.inspect}", "[035m")
     @game_state.handle_new(message, socket_id)
   end
 
   def handle_update(message, socket_id)
-    log(message.inspect, "[034m")
+    # log("Update Message => #{message.inspect}", "[034m")
     @game_state.handle_update(message, socket_id)
   end
 
@@ -145,6 +146,7 @@ class GameServer
 
   def handle_destroy(message, socket_id)
     log(message.inspect, "[034m")
+    send_to_all(@game_state.handle_destroy(message, socket_id))
   end
 
   def update_lobby
@@ -171,7 +173,9 @@ def run_game_server(name = "Rymdskepp Game")
 
     server.request_messages()
     server.handle_data(socket.receive())
+
     server.run_state_changes()
+
     server.request_update_changes()
     server.send_messages()
     if i > 10
@@ -180,7 +184,7 @@ def run_game_server(name = "Rymdskepp Game")
     end
     length = Time.now.to_f - pretime
     i += RATE
-
+    server.log("Cycle time => #{length}", "[7m")
     waittime = ((RATE - length) <= 0 ? 0 : (RATE - length))
     sleep(waittime)
   end

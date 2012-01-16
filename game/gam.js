@@ -38,14 +38,12 @@ Crafty.c("Healthy",
 	{
 		this.health = hp;
 		this.armor = arm;
-		//this.collision(this.width, this.height);
-		//this.onHit("Teammate Bullet", function(){});
 	},
 	
 	bulletHit: function(hitdata)
 	{
 		var bullet = hitdata[0].obj;
-		if(this.team != bullet.team)
+		if(this.team !== bullet.team)
 		{
 			this.health -= bullet.dmg;
 			bullet.kill();
@@ -59,6 +57,7 @@ Crafty.c("Teammate",
 	
 	Teammate: function(team)
 	{
+		if(team == null) team = 0;
 		this.team = team;
 		return this;
 	}
@@ -89,16 +88,20 @@ Crafty.c("Bullet",
 {
 	init: function()
 	{
-		this.requires("Mover, Collision, SendsData");
+		this.requires("Mover, Collision");
 	},
 	
 	Bullet: function(dmg, vel)
 	{
 		this.dmg = dmg;
-		this.delay(this.kill, 1500); //lifetime
+		this.delay(function(){
+			if(this.has("SendsData"))
+				this.netKill();
+			else
+				this.kill();
+		}, 1500); //lifetime
 		this.Mover(10000, 0)
 			.collision(new Crafty.circle(0,0,this.w));
-			//.SendsData("player", ["x", "y", "vel"], msg.id);
 		
 		this.vel.x = vel.x;
 		this.vel.y = vel.y;
@@ -109,6 +112,21 @@ Crafty.c("Bullet",
 	{
 		Crafty.e("2D, Assplode, Effect")
 			.attr({x:this.x, y:this.y});
+			
+		this.destroy();
+	},
+	
+	netKill: function()
+	{
+		Crafty.e("2D, Assplode, Effect")
+			.attr({x:this.x, y:this.y});
+		
+		msg = {};
+		msg.id = this.id;
+		msg.action = "destroy";
+		msg.type = "bullet";
+		window.addToOutbox(msg);
+		
 		this.destroy();
 	}
 });

@@ -9,61 +9,78 @@ var handleMessage = function(msgs)
 	for(var key = 0; key < msgs.length; key++)
 	{	
 		var msg = msgs[key];
-		
+		//console.log(msg.action);
+		//console.log(msg);
 		switch(msg.action)
 		{
+			case "destroy":
+				var obj = netObjs[msg.id];
+				if(obj)
+					obj.kill();
+				break;
 			case "update":
 				if(window.code === msg.code) break;
+			
+				//console.log("update " + msg.type);
 			
 				// grab the object from the list
 				var obj = netObjs[msg.id];
 				if(obj == null)
 				{
-					buildNewEntity(msg);
+					buildNewRecver(msg);
 					obj = netObjs[msg.id];
 				}
 				obj.trigger("NetUpdate", msg);
 				break;
-			case "new_bullet":
+			case "new":
 				if(window.code !== msg.code) break;
-
-				var bullet = Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet")
-					.attr({x:msg.x, y:msg.y, w:11, h:11})
-					.Teammate(msg.team)
-					.Bullet(10, {x:msg.vel.x, y:msg.vel.y})
-					.SendsData("bullet", ["x", "y", "vel", "team"], msg.id); // bulletspeed
-					
+				buildNewSender(msg);
 				break;
 			case "new_player":
 				if(window.code !== msg.code) break;
-				
-				var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy, SendsData")
-					.attr({x:msg.x, y:msg.y, w:24, h:24, z:50, name:"player"})
-					.Mover(500, 500)
-					.LocalPlayer()
-					.Teammate(msg.team)
-					.SendsData("player", ["x", "y", "vel", "team"], msg.id);
-				
+				buildNewSender(msg);
 				break;
 		}
 	}
 };
 
-var buildNewEntity = function(msg)
+var buildNewSender = function(msg)
+{
+	switch(msg.type)
+	{
+		case "bullet":
+			Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet, SendsData")
+				.attr({x:msg.x, y:msg.y, w:11, h:11})
+				.Teammate(msg.team)
+				.Bullet(10, {x:msg.vel.x, y:msg.vel.y})
+				.SendsData("bullet", ["x", "y", "vel", "team"], msg.id);
+			break;
+		case "player":			
+			Crafty.e("Ship2, Mover, LocalPlayer, Healthy, SendsData")
+				.attr({x:msg.x, y:msg.y, w:24, h:24, z:50, name:"player"})
+				.Mover(500, 500)
+				.LocalPlayer()
+				.Teammate(msg.team)
+				.SendsData("player", ["x", "y", "vel", "team"], msg.id);
+			break;
+	}
+};
+
+var buildNewRecver = function(msg)
 {
 	switch(msg.type)
 	{
 		case "bullet":
 			Crafty.e("DOM, GreenBullet, Mover, Teammate, Bullet, RecsData")
 				.attr({x:msg.x, y:msg.y, w:11, h:11})
-				.Teammate(0)
+				.Teammate(msg.team)
 				.Bullet(10, msg.vel)
 				.RecsData(msg);
 			break;
 		case "player":
-			var netPlayer = Crafty.e("Ship1, Mover, RecsData, Healthy, Teammate")
+			Crafty.e("Ship1, Mover, RecsData, Healthy, Teammate")
 				.attr({x:msg.x, y:msg.y, z:50, w:19, h:27})
-				.Teammate(2)
+				.Teammate(msg.team)
 				.Mover(500, 500)
 				.RecsData(msg);
 			break;
@@ -79,7 +96,7 @@ Crafty.c("SendsData",
 	{
 		this.id = id;
 		this.type = type;
-		this.sendDelay = 100;
+		this.sendDelay = 50;
 		this.lastSend = Date.now();
 		this.sendProperties = listofthings;
 		this.bind("EnterFrame", this.netUpdate);
@@ -92,14 +109,12 @@ Crafty.c("SendsData",
 	netUpdate: function()
 	{
 		if((this.lastSend + this.sendDelay) > Date.now()) return;
-		
-		console.log("sending message");
-		
+				
 		var msg = {};
 		msg["id"] = this.id;
 		msg["action"] = "update";
 		msg["type"] = this.type;
-		msg["tick"] = Date.now();
+		msg["timestamp"] = Date.now() / 1000;
 		for(var key in this.sendProperties)
 		{
 			msg[this.sendProperties[key]] = this[this.sendProperties[key]];

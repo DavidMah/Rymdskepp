@@ -1,3 +1,5 @@
+MASSIVE_LOGGING = true
+
 class GameStateManager
   def initialize(game_server, rate)
     @game_server = game_server
@@ -20,7 +22,8 @@ class GameStateManager
   end
 
   def run_state_changes
-    # set_velocity_changes(@bullets)
+    # log "Everything => #{@everything.inspect}"
+    set_velocity_changes(@bullets)
     set_velocity_changes(@aliens)
   end
 
@@ -42,6 +45,7 @@ class GameStateManager
   def handle_new(message, socket_id)
     object = message
     add_new(object, @entity_table[message['type']])
+    object = object.merge!({'code' => message['code']}) if message['type'] == 'bullet'
     @game_server.send_to_all(object)
   end
 
@@ -57,7 +61,7 @@ class GameStateManager
 
   def add_new(object, list)
     assigned_id = @current_id
-    object = object.merge({'id' => assigned_id})
+    object = object.merge!({'id' => assigned_id})
     @everything[assigned_id] = object
     list[assigned_id]        = object
     @current_id += 1
@@ -70,16 +74,26 @@ class GameStateManager
     @everything.values.map{|unit| unit.merge({"action" => "update"})}
   end
 
+  def handle_destroy(message, socket_id)
+    remove_entity(message['id'], message['type'])
+    message
+  end
+
   def remove_entity(id, type)
-    puts "removing #{id} of type #{type}"
+    log "removing #{id} of type #{type}"
     @everything.delete(id)
     @entity_table[type].delete(id)
   end
 
   def set_velocity_changes(elements)
     elements.values.each do |e|
-      e['x'] = e['vel']['x'] * RATE
-      e['y'] = e['vel']['y'] * RATE
+      e['x'] += e['vel']['x'] * RATE
+      e['y'] += e['vel']['y'] * RATE
     end
   end
+
+  def log(message, color = "[37m")
+      puts "\033#{color}<#{Time.now.to_f}> Game Server: #{message}\033[0m"
+  end
+
 end
