@@ -38,14 +38,12 @@ Crafty.c("Healthy",
 	{
 		this.health = hp;
 		this.armor = arm;
-		//this.collision(this.width, this.height);
-		//this.onHit("Teammate Bullet", function(){});
 	},
 	
 	bulletHit: function(hitdata)
 	{
 		var bullet = hitdata[0].obj;
-		if(this.team != bullet.team)
+		if(this.team !== bullet.team)
 		{
 			this.health -= bullet.dmg;
 			bullet.kill();

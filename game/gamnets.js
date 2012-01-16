@@ -114,7 +114,7 @@ Crafty.c("SendsData",
 		msg["id"] = this.id;
 		msg["action"] = "update";
 		msg["type"] = this.type;
-		msg["tick"] = Date.now();
+		msg["timestamp"] = Date.now() / 1000;
 		for(var key in this.sendProperties)
 		{
 			msg[this.sendProperties[key]] = this[this.sendProperties[key]];
