@@ -9,11 +9,12 @@ var handleMessage = function(msgs)
 	for(var key = 0; key < msgs.length; key++)
 	{	
 		var msg = msgs[key];
+		console.log("processing: " + msg);
 		
 		switch(msg.action)
 		{
 			case "update":
-				if(window.code === msg.code) return;
+				if(window.code === msg.code) break;
 			
 				// grab the object from the list
 				var obj = netObjs[msg.id];
@@ -25,7 +26,7 @@ var handleMessage = function(msgs)
 				obj.trigger("NetUpdate", msg);
 				break;
 			case "new_player":
-				if(window.code !== msg.code) return;
+				if(window.code !== msg.code) break;
 								
 				var player1 = Crafty.e("Ship2, Mover, LocalPlayer, Healthy, SendsData")
 					.attr({x:150, y:150, w:24, h:24, z:50, name:"player"})
