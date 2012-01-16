@@ -6,7 +6,7 @@ var handleMessage = function(msgs)
 {
 	if(!playing) return;
 
-	for(var key in msgs)
+	for(var key = 0; key < msgs.length; key++)
 	{	
 		var msg = msgs[key];
 		
@@ -23,9 +23,6 @@ var handleMessage = function(msgs)
 					obj = netObjs[msg.id];
 				}
 				obj.trigger("NetUpdate", msg);
-				break;
-			case "new":
-				buildNewEntity(msg);
 				break;
 			case "new_player":
 				if(window.code !== msg.code) return;
@@ -84,11 +81,6 @@ Crafty.c("SendsData",
 	
 	netUpdate: function()
 	{
-		/*if(!this.sentNew)
-		{
-			this.sendNew();
-			return;
-		}*/
 		if((this.lastSend + this.sendDelay) > Date.now()) return;
 		
 		var msg = {};
@@ -102,24 +94,6 @@ Crafty.c("SendsData",
 		
 		//console.log(msg);
 		window.addToOutbox(msg);
-	},
-	
-	sendNew: function()
-	{	
-		//send new message
-		var msg = {};
-		msg["id"] = this.id;
-		msg["action"] = "new";
-		msg["type"] = this.type;
-		for(var key in this.sendProperties)
-		{
-			msg[this.sendProperties[key]] = this[this.sendProperties[key]];
-		}
-		
-		//console.log(msg);
-		window.addToOutbox(msg);
-		
-		this.sentNew = true;
 	}
 });
 
