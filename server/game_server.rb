@@ -3,12 +3,20 @@ require 'web_socket'
 require 'json'
 
 MESSAGE_BOILER = {"action" => "game_server"}
+LOBBY_SERVER   = "davidpmah.com:9002"
 RATE = 0.1
 
 
 class GameServer
-  def initialize(socket)
+  def initialize(socket, name)
+    @name = name
     @game_state = GameStateManager.new(self, RATE)
+    begin
+      @lobby  = WebSocket.new("ws://#{LOBBY_SERVER}")
+    rescue
+      log "no lobby"
+      @lobby = nil
+    end
     @socket = socket
     @socket.send('{"action":"game_server", "command":"set_game_server"}')
     @outbox = []
@@ -139,14 +147,23 @@ class GameServer
     log(message.inspect, "[034m")
   end
 
+  def update_lobby
+    return if @lobby.nil?
+    @lobby.send({
+      'action'  => 'update',
+      'name'    => @name,
+      'players' => @users.size - 1
+    }.to_json)
+  end
+
   def log(message, color = "[33m")
       puts "\033#{color}Game Server: #{message}\033[0m"
   end
 end
 
-def run_game_server
+def run_game_server(name = "Rymdskepp Game")
   socket = WebSocket.new("ws://localhost:9001")
-  server = GameServer.new(socket)
+  server = GameServer.new(socket, name)
 
   i = 0
   loop do
@@ -155,6 +172,11 @@ def run_game_server
     server.run_state_changes()
     server.request_update_changes()
     server.send_messages()
+    if i > 10
+      server.update_lobby()
+      i = 0
+    end
+    i += RATE
     sleep(RATE)
   end
 end
