@@ -44,7 +44,10 @@ class Entity
   end
 
   def update_attributes(message)
-
+    @x   = (message[:x]   or @x)
+    @y   = (message[:y]   or @y)
+    @vel = (message[:vel] or @vel)
+    @acc = (message[:acc] or @acc)
   end
 
   def destroy
