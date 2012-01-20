@@ -1,12 +1,6 @@
-load "../entity.rb"
+require_relative 'entity_spec_ops.rb'
+require_relative "../entity.rb"
 
-def check_entity_attributes(entity, x, y, vx, vy, ax, ay)
-  data = entity.inspect
-  data[:x].should   == x
-  data[:y].should   == y
-  data[:vel].should == {:x=>vx, :y=>vy}
-  data[:acc].should == {:x=>ax, :y=>ay}
-end
 
 describe Entity do
   before :each do
@@ -88,4 +82,19 @@ describe Entity do
     end
   end
 
+  describe "retrieve_update_message" do
+    it "should include the new action tag at first" do
+      data = @entity.retrieve_update_message
+      data[:action].should == 'new'
+      data[:type].should   == 'entity'
+      check_entity_attributes(@entity, 0, 0, 0, 0, 0, 0, {:data => data})
+    end
+
+    it "should include the update action tag after first" do
+      data = @entity.retrieve_update_message
+      data = @entity.retrieve_update_message
+      data[:action].should == 'update'
+      check_entity_attributes(@entity, 0, 0, 0, 0, 0, 0, {:data => data})
+    end
+  end
 end
