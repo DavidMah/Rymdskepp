@@ -3,8 +3,6 @@ require_relative '../player.rb'
 
 describe Player do
 
-  Type = 'player'
-
   before :each do
     @player = Player.new
   end
@@ -15,7 +13,7 @@ describe Player do
 
   describe "#initialize" do
     it "should send players to the players pool" do
-      Player.players.size.should == 1
+      Player.entities.size.should == 1
     end
   end
 

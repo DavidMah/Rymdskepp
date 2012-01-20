@@ -1,3 +1,5 @@
+require_relative 'entity.rb'
+require_relative 'player.rb'
 MASSIVE_LOGGING = true
 
 class GameStateManager

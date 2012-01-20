@@ -66,6 +66,8 @@ class Entity
   def destroy
     self.class.destroy_entity(self)
   end
+  # ---------------------------------
+  # -- Code Pertaining to Messages --
 
   # This message will be dispersed to all clients
   # As the information for the status of this entity
@@ -86,5 +88,13 @@ class Entity
       :acc  => @acc.clone
     }
   end
+  # -----------------------------------
+  # -- Code Pertaining to Game Logic --
 
+  def simulate_movement
+    @x += @vel[:x] * RATE
+    @y += @vel[:y] * RATE
+    @vel[:x] += @acc[:x] * RATE
+    @vel[:y] += @acc[:y] * RATE
+  end
 end

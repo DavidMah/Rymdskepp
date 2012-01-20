@@ -1,24 +1,24 @@
 require_relative 'entity.rb'
 
-class Player < Entity
-  @@players = {}
+class Bullet < Entity
+  @@bullets = {}
 
   def self.entities
-    @@players
+    @@bullets
   end
 
   def self.add_to_entity_list(entity)
     id = super(entity)
-    @@players[id] = entity
+    @@bullets[id] = entity
   end
 
   def self.clear_entities(ids = nil)
     super(ids)
     if ids == nil
-      @@players = {}
+      @@bullets = {}
     else
       ids.each do |id|
-        @@players.delete(id)
+        @@bullets.delete(id)
       end
     end
   end
@@ -29,6 +29,7 @@ class Player < Entity
 
   def initialize(message = {})
     super(message)
-    @type = 'player'
+    @type = 'bullet'
   end
+
 end
