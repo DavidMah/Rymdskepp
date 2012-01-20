@@ -63,7 +63,7 @@ class GameStateManager
     item['x'] = message['x']
     item['y'] = message['y']
     item['vel'] = message['vel']
-    item['acc'] = message['vel']
+    item['acc'] = message['acc']
   end
 
   def add_new(object, list)
@@ -96,6 +96,8 @@ class GameStateManager
     elements.values.each do |e|
       e['x'] += e['vel']['x'] * RATE
       e['y'] += e['vel']['y'] * RATE
+      e['vel'] += e['acc']['x'] * RATE
+      e['vel'] += e['acc']['y'] * RATE
     end
   end
 
