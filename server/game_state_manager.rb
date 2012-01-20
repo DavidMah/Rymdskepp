@@ -1,3 +1,5 @@
+require_relative 'entity.rb'
+require_relative 'player.rb'
 MASSIVE_LOGGING = true
 
 class GameStateManager
@@ -34,6 +36,10 @@ class GameStateManager
       'vel' => {
         'x' => 1,
         'y' => 1
+      },
+      'acc' => {
+        'x' => 0,
+        'y' => 0
       }
     })
     object = add_new(message, @players)
@@ -57,6 +63,7 @@ class GameStateManager
     item['x'] = message['x']
     item['y'] = message['y']
     item['vel'] = message['vel']
+    item['acc'] = message['vel']
   end
 
   def add_new(object, list)
