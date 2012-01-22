@@ -28,6 +28,7 @@ Crafty.c("Shooter",
 			msg.x = this.x+this.w/2-5;
 			msg.y = this.y+this.h/2-5;
 			msg.vel = {x:dir.x*this.bulletSpeed, y:dir.y*this.bulletSpeed};
+			msg.acc = {x:0,y:0};
 			msg.team = this.team;
 			window.addToOutbox(msg);
 
@@ -46,6 +47,8 @@ Crafty.c("LocalPlayer",
 	LocalPlayer: function()
 	{
 		this.bind("EnterFrame", this.localUpdate);
+		this.bind("KeyDown", this.keyDown);
+		this.bind("KeyUp", this.keyUp);
 		this.mouseIsDown = false;
 		this.mouseX = 0;
 		this.mouseY = 0;
@@ -54,28 +57,49 @@ Crafty.c("LocalPlayer",
 		Crafty.addEvent(this, Crafty.stage.elem, "mouseup", this.localClickUp);
 		return this;
 	},
+	
+	keyDown: function(e)
+	{
+		if(e.keyCode == Crafty.keys.W)
+		{
+			this.acc.y -= 1000;
+		}
+		if(e.keyCode == Crafty.keys.A)
+		{
+			this.acc.x -= 1000;
+		}
+		if(e.keyCode == Crafty.keys.S)
+		{
+			this.acc.y += 1000;
+		}
+		if(e.keyCode == Crafty.keys.D)
+		{
+			this.acc.x += 1000;
+		}
+	},
+	
+	keyUp: function(e)
+	{
+		if(e.keyCode == Crafty.keys.W)
+		{
+			this.acc.y += 1000;
+		}
+		if(e.keyCode == Crafty.keys.A)
+		{
+			this.acc.x += 1000;
+		}
+		if(e.keyCode == Crafty.keys.S)
+		{
+			this.acc.y -= 1000;
+		}
+		if(e.keyCode == Crafty.keys.D)
+		{
+			this.acc.x -= 1000;
+		}
+	},
 
 	localUpdate: function(e)
 	{
-		var x = 0;
-		var y = 0;
-		if(this.isDown(Crafty.keys.W))
-		{
-			y -= 1;
-		}
-		if(this.isDown(Crafty.keys.A))
-		{
-			x -= 1;
-		}
-		if(this.isDown(Crafty.keys.S))
-		{
-			y += 1;
-		}
-		if(this.isDown(Crafty.keys.D))
-		{
-			x += 1;
-		}
-		
 		var up = 0;
 		var right = 0;
 		if(this.isDown(Crafty.keys.UP_ARROW))
@@ -100,8 +124,8 @@ Crafty.c("LocalPlayer",
 			this.shoot({x:right, y:up});
 		}
 		
-		if(x != 0 || y != 0)
-			this.addVel(x,y);
+		//if(x != 0 || y != 0)
+			//this.addVel(x,y);
 			
 		Crafty.viewport.x = -this.x + width/2;
 		Crafty.viewport.y = -this.y + height/2;
@@ -148,25 +172,12 @@ Crafty.c("Mover",
 		this.speed = 1000;
 		return this;
 	},
-	
-	addVel: function(x,y)
-	{
-		// bounds to 1, -1, 0 if you pass in something else
-		this.control.x = (x >= 1) ? 1 : ((x <= -1) ? -1 : 0);
-		this.control.y = (y >= 1) ? 1 : ((y <= -1) ? -1 : 0);
-	},
-	
+
 	moverUpdate: function(e)
 	{
 		// this gives the time since the last update
 		// multiply by delta to get framerate independent movement
 		var delta = (Date.now()-this.lastTick)/1000;
-		
-		// update velocity from outside sources and reset controls
-		this.vel.x += this.control.x * this.speed * delta;
-		this.vel.y += this.control.y * this.speed * delta;
-		this.control.x = 0;
-		this.control.y = 0;
 		
 		// add any acceleration
 		this.vel.x += this.acc.x * delta;
