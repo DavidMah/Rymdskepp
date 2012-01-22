@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link href="rymdskepp.css" type="text/css" rel="stylesheet"/>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
+  <script type="text/javascript" src="http://craftyjs.com/release/0.4.4/crafty-min.js"></script>
+  <script type="text/javascript" src="game/movement.js"></script>
+  <script type="text/javascript" src="game/animations.js"></script>
+  <script type="text/javascript" src="game/gamnets.js"></script>
+  <script type="text/javascript" src="game/gam.js"></script>
+  <script type="text/javascript" src="https://github.com/geekbuntu/jQuery-MD5/raw/master/jquery.md5.js"></script>
+  <script type="text/javascript" src="game/multiplayer.js"></script>
+  <!-- <script type="text/javascript" src="stub_server.js"></script>-->
+  <script type="text/javascript" src="rymdskepp.js"></script>
+  <script type="text/javascript" src="game/jsunity-0.6.js"></script>
+  <script type="text/javascript" src="game/componentTests.js"></script>
+  <title>RYMDSKEPP</title>
+</head>
+<body>
+  <div id="opener">
+    <h1>RYMDSKEPP</h1>
+    <div id="opener_container">
+      <span class="opener">Server</span>
+      <input  id="opener_server" class="opener opener_entry" width=15 value="127.0.0.1" maxlength=15></input>
+      <span class="opener">Name</span>
+      <input  id="opener_name"   class="opener opener_entry" width=15 maxlength=15></input>
+      <button id="opener_play">Play</button>
+    </div>
+    <div id="lobby_container">
+      <ul id="rooms">
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
